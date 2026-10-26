@@ -1,350 +1,406 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vira Saienko</title>
-<style>
-  *{box-sizing:border-box}
-  html,body{margin:0;height:100%;background:#efede6;color:#161511}
-  body{display:grid;place-items:center;overflow:hidden}
-  /* The words stay in the page for search engines and screen readers. They are
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vira Saienko</title>
+  <style>
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      background: #efede6;
+      color: #161511
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      overflow: hidden
+    }
+
+    /* The words stay in the page for search engines and screen readers. They are
      shown as plain type only until the canvas has drawn its first frame. */
-  h1{margin:0;font:900 12vw/1 "Arial Black",Arial,sans-serif;text-transform:uppercase;letter-spacing:-.02em}
-  html.live h1{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-  canvas{position:fixed;inset:0;width:100%;height:100%;display:none;filter:url(#goo);touch-action:pan-y}
-  html.live canvas{display:block}
-  svg{position:absolute;width:0;height:0}
-</style>
+    h1 {
+      margin: 0;
+      font: 900 12vw/1 "Arial Black", Arial, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: -.02em
+    }
+
+    html.live h1 {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      filter: url(#goo);
+      touch-action: pan-y
+    }
+
+    html.live canvas {
+      display: block
+    }
+
+    svg {
+      position: absolute;
+      width: 0;
+      height: 0
+    }
+  </style>
 </head>
+
 <body>
-<h1>Vira Saienko</h1>
-<canvas id="ink" aria-hidden="true"></canvas>
+  <h1>Mira Saienko</h1>
+  <canvas id="ink" aria-hidden="true"></canvas>
 
-<!-- Blur, then a hard alpha threshold: overlapping circles melt into one
+  <!-- Blur, then a hard alpha threshold: overlapping circles melt into one
      smooth blob and nothing is ever sharp. The blur radius is set from script. -->
-<svg aria-hidden="true">
-  <filter id="goo" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
-    <feGaussianBlur id="blur" stdDeviation="6"/>
-    <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12"/>
-  </filter>
-</svg>
+  <svg aria-hidden="true">
+    <filter id="goo" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+      <feGaussianBlur id="blur" stdDeviation="6" />
+      <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12" />
+    </filter>
+  </svg>
 
-<script>
-(function () {
-  "use strict";
+  <script>
+    (function () {
+      "use strict";
 
-  var INK = "#161511";
-  var LOOP = 10;                 // seconds for one full ooze cycle
-  var PEN = 0.145;               // pen radius, in letter heights
-  var TRACK = 0.22;              // gap between letters, in letter heights
-  var SPACE = 0.7;               // gap between words
-  var LINE_GAP = 0.45;           // gap between lines when the name wraps
+      var INK = "#161511";
+      var LOOP = 10;                 // seconds for one full ooze cycle
+      var PEN = 0.145;               // pen radius, in letter heights
+      var TRACK = 0.20;              // gap between letters, in letter heights
+      var SPACE = 0.7;               // gap between words
+      var LINE_GAP = 0.45;           // gap between lines when the name wraps
 
-  // ===== CUSTOMISE YOUR LIQUID TEXT HERE =====
-  // Appearance
-  var SWELL_SLOW = 0.4;       // large, slow changes in stroke thickness
-  var SWELL_MEDIUM = 0.15;     // medium ripples in stroke thickness
-  var SWELL_FAST = 0.8;       // small, quick ripples
-  var STROKE_IRREGULARITY = 0.25; // fixed uneven thickness along each letter (0 = uniform)
-  var END_SWELL = 0.2;         // extra thickness at stroke ends
-  var WAVE_X = 0.03;           // automatic sideways movement
-  var WAVE_Y = 0.03;           // automatic vertical movement
-  var WAVE_Y_EXTRA = 0.025;    // secondary vertical wave
+      // ===== CUSTOMISE YOUR LIQUID TEXT HERE =====
+      // Appearance
+      var SWELL_SLOW = 0.10;       // large, slow changes in stroke thickness
+      var SWELL_MEDIUM = 0.8;     // medium ripples in stroke thickness
+      var SWELL_FAST = 0.2;       // small, quick ripples
+      var STROKE_IRREGULARITY = 0.25; // fixed uneven thickness along each letter (0 = uniform)
+      var END_SWELL = 0.2;         // extra thickness at stroke ends
+      var WAVE_X = 0.03;           // automatic sideways movement
+      var WAVE_Y = 0.03;           // automatic vertical movement
+      var WAVE_Y_EXTRA = 0.025;    // secondary vertical wave
 
-  // Mouse and spring physics
-  var REACH = 0.4;             // cursor interaction radius
-  var PUSH = 0.3;              // force pushing ink away from cursor
-  var CARRY = 0.4;             // mouse motion dragging ink
-  var SPRING = 0.009;           // return force toward original shape
-  var DAMP = 0.9;              // motion retention (higher = longer wobble)
-  var COUPLE = 0.9;            // how strongly neighbouring points follow
-  var MAX_OFFSET = 0.3;        // maximum deformation, in letter heights
-  var POINT_SPACING = 0.5;     // sample spacing, relative to PEN
-  var POINTER_DECAY = 0.8;     // how quickly cursor momentum fades
-  // ===== END CUSTOM SETTINGS =====
+      // Mouse and spring physics
+      var REACH = 0.4;             // cursor interaction radius
+      var PUSH = 0.3;              // force pushing ink away from cursor
+      var CARRY = 0.4;             // mouse motion dragging ink
+      var SPRING = 0.009;           // return force toward original shape
+      var DAMP = 0.9;              // motion retention (higher = longer wobble)
+      var COUPLE = 0.9;            // how strongly neighbouring points follow
+      var MAX_OFFSET = 0.3;        // maximum deformation, in letter heights
+      var POINT_SPACING = 0.5;     // sample spacing, relative to PEN
+      var POINTER_DECAY = 0.8;     // how quickly cursor momentum fades
+      // ===== END CUSTOM SETTINGS =====
 
-  var canvas = document.getElementById("ink");
-  var ctx = canvas.getContext("2d");
-  var blurNode = document.getElementById("blur");
-  if (!ctx) return;
+      var canvas = document.getElementById("ink");
+      var ctx = canvas.getContext("2d");
+      var blurNode = document.getElementById("blur");
+      if (!ctx) return;
 
-  /* ---- letters: skeletons drawn with a round pen, in a box 1 high -------- */
+      /* ---- letters: skeletons drawn with a round pen, in a box 1 high -------- */
 
-  var PI = Math.PI;
-  function arc(cx, cy, rx, ry, a0, a1, n) {
-    var pts = [];
-    for (var i = 0; i <= n; i++) {
-      var a = a0 + (a1 - a0) * (i / n);
-      pts.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]);
-    }
-    return pts;
-  }
-  function cat() { return Array.prototype.concat.apply([], arguments); }
-
-  /* THE TEXT. Edit the words in the <h1> above, or open the page with ?text=Your words.
-     From the console: setLiquidText("Anything"). Any letter that is in LETTERS below works. */
-
-  /* THE ALPHABET. Each letter is  { w: width in letter heights, s: [strokes] }
-     A stroke is a polyline of [x, y] points in a box 1 high, y pointing down (0 = top, 1 = baseline).
-     arc(cx, cy, rx, ry, fromAngle, toAngle, steps) makes a curved stroke; cat() joins pieces.
-     To add a character: copy a line, change the key and the points. A stroke with one
-     point repeated, [[x, y], [x, y]], is a dot. Nothing else needs changing. */
-  var LETTERS = {
-    A: { w: 1.14, s: [[[0, 1], [0.57, 0.02], [1.14, 1]], [[0.2, 0.76], [0.94, 0.76]]] },
-    B: { w: 0.84, s: [[[0, 0], [0, 1]],
-         cat([[0, 0.02]], arc(0.36, 0.26, 0.42, 0.24, -PI / 2, PI / 2, 8), [[0, 0.5]]),
-         cat([[0, 0.5]], arc(0.38, 0.75, 0.46, 0.25, -PI / 2, PI / 2, 8), [[0, 1]])] },
-    C: { w: 0.86, s: [arc(0.5, 0.5, 0.5, 0.5, -PI * 0.22, -PI * 1.78, 16).map(function (p) { return [p[0] * 0.86, p[1]]; })] },
-    D: { w: 0.85, s: [[[0, 0], [0, 1]], cat([[0, 0.02]], arc(0.35, 0.5, 0.5, 0.48, -PI / 2, PI / 2, 12), [[0, 0.98]])] },
-    E: { w: 0.7, s: [[[0, 0], [0, 1]], [[0, 0], [0.7, 0]], [[0, 0.5], [0.55, 0.5]], [[0, 1], [0.7, 1]]] },
-    F: { w: 0.7, s: [[[0, 0], [0, 1]], [[0, 0], [0.7, 0]], [[0, 0.5], [0.55, 0.5]]] },
-    G: { w: 0.86, s: [cat(arc(0.5, 0.5, 0.5, 0.5, -PI * 0.22, -PI * 1.78, 16).map(function (p) { return [p[0] * 0.86, p[1]]; }),
-         [[0.86, 0.55], [0.58, 0.55]])] },
-    H: { w: 0.88, s: [[[0, 0], [0, 1]], [[0.88, 0], [0.88, 1]], [[0, 0.5], [0.88, 0.5]]] },
-    I: { w: 0, s: [[[0, 0], [0, 1]]] },
-    J: { w: 0.6, s: [cat([[0.6, 0]], arc(0.3, 0.7, 0.3, 0.3, 0, PI * 0.9, 8))] },
-    K: { w: 0.8, s: [[[0, 0], [0, 1]], [[0.8, 0], [0, 0.62]], [[0.25, 0.42], [0.8, 1]]] },
-    L: { w: 0.65, s: [[[0, 0], [0, 1], [0.65, 1]]] },
-    M: { w: 1.05, s: [[[0, 1], [0, 0.12], [0.52, 0.72], [1.05, 0.12], [1.05, 1]]] },
-    N: { w: 0.9, s: [[[0, 1], [0, 0], [0.9, 1], [0.9, 0]]] },
-    O: { w: 0.92, s: [arc(0.46, 0.5, 0.46, 0.5, 0, PI * 2, 20)] },
-    P: { w: 0.82, s: [[[0, 1], [0, 0]], cat([[0, 0.02]], arc(0.4, 0.28, 0.42, 0.26, -PI / 2, PI / 2, 8), [[0, 0.54]])] },
-    Q: { w: 0.92, s: [arc(0.46, 0.5, 0.46, 0.5, 0, PI * 2, 20), [[0.55, 0.72], [0.95, 1.08]]] },
-    R: { w: 0.82, s: [[[0, 1], [0, 0]],
-         cat([[0, 0.02]], arc(0.4, 0.28, 0.42, 0.26, -PI / 2, PI / 2, 8), [[0, 0.54]]),
-         [[0.38, 0.55], [0.82, 1]]] },
-    S: { w: 0.8, s: [cat(arc(0.4, 0.25, 0.4, 0.25, -PI * 0.2, -PI * 1.5, 12), arc(0.4, 0.75, 0.4, 0.25, -PI / 2, PI * 0.8, 12))] },
-    T: { w: 0.8, s: [[[0, 0], [0.8, 0]], [[0.4, 0], [0.4, 1]]] },
-    U: { w: 0.8, s: [cat([[0, 0]], arc(0.4, 0.62, 0.4, 0.38, PI, 0, 10), [[0.8, 0]])] },
-    V: { w: 0.9, s: [[[0, 0], [0.45, 1], [0.9, 0]]] },
-    W: { w: 1.3, s: [[[0, 0], [0.3, 1], [0.65, 0.3], [1, 1], [1.3, 0]]] },
-    X: { w: 0.8, s: [[[0, 0], [0.8, 1]], [[0.8, 0], [0, 1]]] },
-    Y: { w: 0.92, s: [[[0, 0], [0.46, 0.52]], [[0.92, 0], [0.46, 0.52], [0.46, 1]]] },
-    Z: { w: 0.75, s: [[[0, 0], [0.75, 0], [0, 1], [0.75, 1]]] },
-
-    0: { w: 0.7, s: [arc(0.35, 0.5, 0.35, 0.5, 0, PI * 2, 16)] },
-    1: { w: 0.3, s: [[[0, 0.2], [0.3, 0], [0.3, 1]]] },
-    2: { w: 0.76, s: [cat(arc(0.38, 0.28, 0.38, 0.28, -PI * 0.95, PI * 0.15, 10), [[0, 1], [0.76, 1]])] },
-    3: { w: 0.78, s: [cat(arc(0.36, 0.25, 0.36, 0.25, -PI * 0.85, PI / 2, 10), arc(0.38, 0.75, 0.4, 0.25, -PI / 2, PI * 0.85, 10))] },
-    4: { w: 0.8, s: [[[0.55, 1], [0.55, 0], [0, 0.68], [0.8, 0.68]]] },
-    5: { w: 0.76, s: [cat([[0.72, 0], [0.05, 0], [0.02, 0.45]], arc(0.38, 0.72, 0.38, 0.28, -PI * 0.7, PI * 0.75, 10))] },
-    6: { w: 0.74, s: [arc(0.37, 0.7, 0.37, 0.3, 0, PI * 2, 14), [[0.65, 0], [0.1, 0.4], [0, 0.7]]] },
-    7: { w: 0.75, s: [[[0, 0], [0.75, 0], [0.25, 1]]] },
-    8: { w: 0.75, s: [arc(0.37, 0.25, 0.34, 0.25, 0, PI * 2, 12), arc(0.37, 0.75, 0.38, 0.25, 0, PI * 2, 12)] },
-    9: { w: 0.74, s: [arc(0.37, 0.3, 0.37, 0.3, 0, PI * 2, 14), [[0.74, 0.3], [0.65, 0.8], [0.15, 1]]] },
-
-    ".": { w: 0, s: [[[0, 1], [0, 1]]] },
-    ",": { w: 0, s: [[[0, 1], [-0.08, 1.18]]] },
-    "!": { w: 0, s: [[[0, 0], [0, 0.62]], [[0, 1], [0, 1]]] },
-    "?": { w: 0.7, s: [cat(arc(0.35, 0.25, 0.35, 0.25, -PI * 0.85, PI * 0.35, 10), [[0.35, 0.62]]), [[0.35, 1], [0.35, 1]]] },
-    "-": { w: 0.5, s: [[[0, 0.55], [0.5, 0.55]]] },
-    "'": { w: 0, s: [[[0, 0], [0, 0.25]]] },
-    ":": { w: 0, s: [[[0, 0.3], [0, 0.3]], [[0, 0.85], [0, 0.85]]] },
-    "/": { w: 0.5, s: [[[0.5, 0], [0, 1]]] }
-  };
-
-  var heading = document.querySelector("h1");
-  var TEXT = new URLSearchParams(location.search).get("text") || heading.textContent;
-  var words = [];                // the text as a list of words made only of known letters
-
-  function parseText(text) {
-    words = String(text).toUpperCase().split(/\s+/).map(function (w) {
-      return w.split("").filter(function (c) { return LETTERS[c]; }).join("");
-    }).filter(Boolean);
-    if (!words.length) words = ["?"];
-  }
-
-  /* ---- state ------------------------------------------------------------- */
-
-  var strokes = [];      // each stroke is a list of points: rest x,y + offset + velocity
-  var W = 0, H = 0, dpr = 1, unit = 1;
-  var pointer = { x: -1e4, y: -1e4, vx: 0, vy: 0, last: 0 };
-
-  function wordWidth(word) {
-    var total = 0;
-    for (var i = 0; i < word.length; i++) {
-      total += LETTERS[word[i]].w + 2 * PEN + (i < word.length - 1 ? TRACK : 0);
-    }
-    return total;
-  }
-  function lineWidth(line) {
-    var w = 0;
-    line.forEach(function (word, i) { w += (i ? SPACE : 0) + wordWidth(word); });
-    return w;
-  }
-
-  /* Split the words into n lines of roughly equal width. */
-  function breakLines(n) {
-    var total = lineWidth(words), limit = Math.max(total / n * 1.08, Math.max.apply(null, words.map(wordWidth)));
-    var lines = [[]];
-    words.forEach(function (word) {
-      var cur = lines[lines.length - 1];
-      if (cur.length && lineWidth(cur.concat(word)) > limit) lines.push(cur = []);
-      cur.push(word);
-    });
-    return lines;
-  }
-
-  function fit(lines, narrow) {
-    var rows = lines.length + (lines.length - 1) * LINE_GAP;
-    return Math.min((W * (narrow ? 0.9 : 0.82)) / Math.max.apply(null, lines.map(lineWidth)), (H * 0.6) / (rows + 2 * PEN));
-  }
-
-  function resample(poly, spacing) {
-    var out = [[poly[0][0], poly[0][1]]], carry = 0;
-    for (var i = 1; i < poly.length; i++) {
-      var ax = poly[i - 1][0], ay = poly[i - 1][1];
-      var bx = poly[i][0], by = poly[i][1];
-      var len = Math.hypot(bx - ax, by - ay), d = spacing - carry;
-      while (d <= len) {
-        var t = d / len;
-        out.push([ax + (bx - ax) * t, ay + (by - ay) * t]);
-        d += spacing;
+      var PI = Math.PI;
+      function arc(cx, cy, rx, ry, a0, a1, n) {
+        var pts = [];
+        for (var i = 0; i <= n; i++) {
+          var a = a0 + (a1 - a0) * (i / n);
+          pts.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]);
+        }
+        return pts;
       }
-      carry = len - (d - spacing);
-    }
-    var last = poly[poly.length - 1], tail = out[out.length - 1];
-    if (Math.hypot(last[0] - tail[0], last[1] - tail[1]) > spacing * 0.25) out.push([last[0], last[1]]);
-    return out;
-  }
+      function cat() { return Array.prototype.concat.apply([], arguments); }
 
-  function layout() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth; H = window.innerHeight;
-    canvas.width = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
+      /* THE TEXT. Edit the words in the <h1> above, or open the page with ?text=Your words.
+         From the console: setLiquidText("Anything"). Any letter that is in LETTERS below works. */
 
-    // as few lines as will keep the letters big enough to read, otherwise the most that helps
-    var narrow = W < 720, lines = null, best = 0;
-    for (var n = 1; n <= Math.min(words.length, 6); n++) {
-      var tryLines = breakLines(n), u = fit(tryLines, narrow);
-      if (u > best) { best = u; lines = tryLines; }
-      if (u >= 45) { best = u; lines = tryLines; break; }
-    }
-    unit = best;
-    var lineH = unit * (1 + 2 * PEN);
-    var y0 = (H - (lines.length * lineH + (lines.length - 1) * unit * LINE_GAP)) / 2;
+      /* THE ALPHABET. Each letter is  { w: width in letter heights, s: [strokes] }
+         A stroke is a polyline of [x, y] points in a box 1 high, y pointing down (0 = top, 1 = baseline).
+         arc(cx, cy, rx, ry, fromAngle, toAngle, steps) makes a curved stroke; cat() joins pieces.
+         To add a character: copy a line, change the key and the points. A stroke with one
+         point repeated, [[x, y], [x, y]], is a dot. Nothing else needs changing. */
+      var LETTERS = {
+        A: { w: 1.14, s: [[[0, 1], [0.57, 0.02], [1.14, 1]], [[0.2, 0.76], [0.94, 0.76]]] },
+        B: {
+          w: 0.84, s: [[[0, 0], [0, 1]],
+          cat([[0, 0.02]], arc(0.36, 0.26, 0.42, 0.24, -PI / 2, PI / 2, 8), [[0, 0.5]]),
+          cat([[0, 0.5]], arc(0.38, 0.75, 0.46, 0.25, -PI / 2, PI / 2, 8), [[0, 1]])]
+        },
+        C: { w: 0.86, s: [arc(0.5, 0.5, 0.5, 0.5, -PI * 0.22, -PI * 1.78, 16).map(function (p) { return [p[0] * 0.86, p[1]]; })] },
+        D: { w: 0.85, s: [[[0, 0], [0, 1]], cat([[0, 0.02]], arc(0.35, 0.5, 0.5, 0.48, -PI / 2, PI / 2, 12), [[0, 0.98]])] },
+        E: { w: 0.7, s: [[[0, 0], [0, 1]], [[0, 0], [0.7, 0]], [[0, 0.5], [0.55, 0.5]], [[0, 1], [0.7, 1]]] },
+        F: { w: 0.7, s: [[[0, 0], [0, 1]], [[0, 0], [0.7, 0]], [[0, 0.5], [0.55, 0.5]]] },
+        G: {
+          w: 0.86, s: [cat(arc(0.5, 0.5, 0.5, 0.5, -PI * 0.22, -PI * 1.78, 16).map(function (p) { return [p[0] * 0.86, p[1]]; }),
+            [[0.86, 0.55], [0.58, 0.55]])]
+        },
+        H: { w: 0.88, s: [[[0, 0], [0, 1]], [[0.88, 0], [0.88, 1]], [[0, 0.5], [0.88, 0.5]]] },
+        I: { w: 0, s: [[[0, 0], [0, 1]]] },
+        J: { w: 0.6, s: [cat([[0.6, 0]], arc(0.3, 0.7, 0.3, 0.3, 0, PI * 0.9, 8))] },
+        K: { w: 0.8, s: [[[0, 0], [0, 1]], [[0.8, 0], [0, 0.62]], [[0.25, 0.42], [0.8, 1]]] },
+        L: { w: 0.65, s: [[[0, 0], [0, 1], [0.65, 1]]] },
+        M: { w: 1.05, s: [[[0, 1], [0, 0.12], [0.52, 0.72], [1.05, 0.12], [1.05, 1]]] },
+        N: { w: 0.9, s: [[[0, 1], [0, 0], [0.9, 1], [0.9, 0]]] },
+        O: { w: 0.92, s: [arc(0.46, 0.5, 0.46, 0.5, 0, PI * 2, 20)] },
+        P: { w: 0.82, s: [[[0, 1], [0, 0]], cat([[0, 0.02]], arc(0.4, 0.28, 0.42, 0.26, -PI / 2, PI / 2, 8), [[0, 0.54]])] },
+        Q: { w: 0.92, s: [arc(0.46, 0.5, 0.46, 0.5, 0, PI * 2, 20), [[0.55, 0.72], [0.95, 1.08]]] },
+        R: {
+          w: 0.82, s: [[[0, 1], [0, 0]],
+          cat([[0, 0.02]], arc(0.4, 0.28, 0.42, 0.26, -PI / 2, PI / 2, 8), [[0, 0.54]]),
+          [[0.38, 0.55], [0.82, 1]]]
+        },
+        S: { w: 0.8, s: [cat(arc(0.4, 0.25, 0.4, 0.25, -PI * 0.2, -PI * 1.5, 12), arc(0.4, 0.75, 0.4, 0.25, -PI / 2, PI * 0.8, 12))] },
+        T: { w: 0.8, s: [[[0, 0], [0.8, 0]], [[0.4, 0], [0.4, 1]]] },
+        U: { w: 0.8, s: [cat([[0, 0]], arc(0.4, 0.62, 0.4, 0.38, PI, 0, 10), [[0.8, 0]])] },
+        V: { w: 0.9, s: [[[0, 0], [0.45, 1], [0.9, 0]]] },
+        W: { w: 1.3, s: [[[0, 0], [0.3, 1], [0.65, 0.3], [1, 1], [1.3, 0]]] },
+        X: { w: 0.8, s: [[[0, 0], [0.8, 1]], [[0.8, 0], [0, 1]]] },
+        Y: { w: 0.92, s: [[[0, 0], [0.46, 0.52]], [[0.92, 0], [0.46, 0.52], [0.46, 1]]] },
+        Z: { w: 0.75, s: [[[0, 0], [0.75, 0], [0, 1], [0.75, 1]]] },
 
-    blurNode.setAttribute("stdDeviation", (unit * PEN * POINT_SPACING).toFixed(2));
+        0: { w: 0.7, s: [arc(0.35, 0.5, 0.35, 0.5, 0, PI * 2, 16)] },
+        1: { w: 0.3, s: [[[0, 0.2], [0.3, 0], [0.3, 1]]] },
+        2: { w: 0.76, s: [cat(arc(0.38, 0.28, 0.38, 0.28, -PI * 0.95, PI * 0.15, 10), [[0, 1], [0.76, 1]])] },
+        3: { w: 0.78, s: [cat(arc(0.36, 0.25, 0.36, 0.25, -PI * 0.85, PI / 2, 10), arc(0.38, 0.75, 0.4, 0.25, -PI / 2, PI * 0.85, 10))] },
+        4: { w: 0.8, s: [[[0.55, 1], [0.55, 0], [0, 0.68], [0.8, 0.68]]] },
+        5: { w: 0.76, s: [cat([[0.72, 0], [0.05, 0], [0.02, 0.45]], arc(0.38, 0.72, 0.38, 0.28, -PI * 0.7, PI * 0.75, 10))] },
+        6: { w: 0.74, s: [arc(0.37, 0.7, 0.37, 0.3, 0, PI * 2, 14), [[0.65, 0], [0.1, 0.4], [0, 0.7]]] },
+        7: { w: 0.75, s: [[[0, 0], [0.75, 0], [0.25, 1]]] },
+        8: { w: 0.75, s: [arc(0.37, 0.25, 0.34, 0.25, 0, PI * 2, 12), arc(0.37, 0.75, 0.38, 0.25, 0, PI * 2, 12)] },
+        9: { w: 0.74, s: [arc(0.37, 0.3, 0.37, 0.3, 0, PI * 2, 14), [[0.74, 0.3], [0.65, 0.8], [0.15, 1]]] },
 
-    strokes = [];
-    lines.forEach(function (line, li) {
-      var x = (W - lineWidth(line) * unit) / 2;
-      var top = y0 + li * (lineH + unit * LINE_GAP) + unit * PEN;
-      line.forEach(function (word, wi) {
-        if (wi) x += SPACE * unit;
+        ".": { w: 0, s: [[[0, 1], [0, 1]]] },
+        ",": { w: 0, s: [[[0, 1], [-0.08, 1.18]]] },
+        "!": { w: 0, s: [[[0, 0], [0, 0.62]], [[0, 1], [0, 1]]] },
+        "?": { w: 0.7, s: [cat(arc(0.35, 0.25, 0.35, 0.25, -PI * 0.85, PI * 0.35, 10), [[0.35, 0.62]]), [[0.35, 1], [0.35, 1]]] },
+        "-": { w: 0.5, s: [[[0, 0.55], [0.5, 0.55]]] },
+        "'": { w: 0, s: [[[0, 0], [0, 0.25]]] },
+        ":": { w: 0, s: [[[0, 0.3], [0, 0.3]], [[0, 0.85], [0, 0.85]]] },
+        "/": { w: 0.5, s: [[[0.5, 0], [0, 1]]] }
+      };
+
+      var heading = document.querySelector("h1");
+      var TEXT = new URLSearchParams(location.search).get("text") || heading.textContent;
+      var words = [];                // the text as a list of words made only of known letters
+
+      function parseText(text) {
+        words = String(text).toUpperCase().split(/\s+/).map(function (w) {
+          return w.split("").filter(function (c) { return LETTERS[c]; }).join("");
+        }).filter(Boolean);
+        if (!words.length) words = ["?"];
+      }
+
+      /* ---- state ------------------------------------------------------------- */
+
+      var strokes = [];      // each stroke is a list of points: rest x,y + offset + velocity
+      var W = 0, H = 0, dpr = 1, unit = 1;
+      var pointer = { x: -1e4, y: -1e4, vx: 0, vy: 0, last: 0 };
+
+      function wordWidth(word) {
+        var total = 0;
         for (var i = 0; i < word.length; i++) {
-          var g = LETTERS[word[i]], ox = x + PEN * unit;
-          g.s.forEach(function (poly) {
-            var placed = poly.map(function (p) { return [ox + p[0] * unit, top + p[1] * unit]; });
-            strokes.push(resample(placed, unit * PEN * 0.5).map(function (p, k, a) {
-              return { x: p[0], y: p[1], dx: 0, dy: 0, vx: 0, vy: 0,
-                       end: (k === 0 || k === a.length - 1) ? 1 : 0,
-                       seed: x * 0.013 + k * 0.22 + li * 3,
-                       shapeSeed: (ox * 0.037 + top * 0.019 + p[0] * 0.021 + p[1] * 0.031) };
-            }));
+          total += LETTERS[word[i]].w + 2 * PEN + (i < word.length - 1 ? TRACK : 0);
+        }
+        return total;
+      }
+      function lineWidth(line) {
+        var w = 0;
+        line.forEach(function (word, i) { w += (i ? SPACE : 0) + wordWidth(word); });
+        return w;
+      }
+
+      /* Split the words into n lines of roughly equal width. */
+      function breakLines(n) {
+        var total = lineWidth(words), limit = Math.max(total / n * 1.08, Math.max.apply(null, words.map(wordWidth)));
+        var lines = [[]];
+        words.forEach(function (word) {
+          var cur = lines[lines.length - 1];
+          if (cur.length && lineWidth(cur.concat(word)) > limit) lines.push(cur = []);
+          cur.push(word);
+        });
+        return lines;
+      }
+
+      function fit(lines, narrow) {
+        var rows = lines.length + (lines.length - 1) * LINE_GAP;
+        return Math.min((W * (narrow ? 0.9 : 0.82)) / Math.max.apply(null, lines.map(lineWidth)), (H * 0.6) / (rows + 2 * PEN));
+      }
+
+      function resample(poly, spacing) {
+        var out = [[poly[0][0], poly[0][1]]], carry = 0;
+        for (var i = 1; i < poly.length; i++) {
+          var ax = poly[i - 1][0], ay = poly[i - 1][1];
+          var bx = poly[i][0], by = poly[i][1];
+          var len = Math.hypot(bx - ax, by - ay), d = spacing - carry;
+          while (d <= len) {
+            var t = d / len;
+            out.push([ax + (bx - ax) * t, ay + (by - ay) * t]);
+            d += spacing;
+          }
+          carry = len - (d - spacing);
+        }
+        var last = poly[poly.length - 1], tail = out[out.length - 1];
+        if (Math.hypot(last[0] - tail[0], last[1] - tail[1]) > spacing * 0.25) out.push([last[0], last[1]]);
+        return out;
+      }
+
+      function layout() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth; H = window.innerHeight;
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+
+        // as few lines as will keep the letters big enough to read, otherwise the most that helps
+        var narrow = W < 720, lines = null, best = 0;
+        for (var n = 1; n <= Math.min(words.length, 6); n++) {
+          var tryLines = breakLines(n), u = fit(tryLines, narrow);
+          if (u > best) { best = u; lines = tryLines; }
+          if (u >= 45) { best = u; lines = tryLines; break; }
+        }
+        unit = best;
+        var lineH = unit * (1 + 2 * PEN);
+        var y0 = (H - (lines.length * lineH + (lines.length - 1) * unit * LINE_GAP)) / 2;
+
+        blurNode.setAttribute("stdDeviation", (unit * PEN * POINT_SPACING).toFixed(2));
+
+        strokes = [];
+        lines.forEach(function (line, li) {
+          var x = (W - lineWidth(line) * unit) / 2;
+          var top = y0 + li * (lineH + unit * LINE_GAP) + unit * PEN;
+          line.forEach(function (word, wi) {
+            if (wi) x += SPACE * unit;
+            for (var i = 0; i < word.length; i++) {
+              var g = LETTERS[word[i]], ox = x + PEN * unit;
+              g.s.forEach(function (poly) {
+                var placed = poly.map(function (p) { return [ox + p[0] * unit, top + p[1] * unit]; });
+                strokes.push(resample(placed, unit * PEN * 0.5).map(function (p, k, a) {
+                  return {
+                    x: p[0], y: p[1], dx: 0, dy: 0, vx: 0, vy: 0,
+                    end: (k === 0 || k === a.length - 1) ? 1 : 0,
+                    seed: x * 0.013 + k * 0.22 + li * 3,
+                    shapeSeed: (ox * 0.037 + top * 0.019 + p[0] * 0.021 + p[1] * 0.031)
+                  };
+                }));
+              });
+              x += (g.w + 2 * PEN + TRACK) * unit;
+            }
+            x -= TRACK * unit;
           });
-          x += (g.w + 2 * PEN + TRACK) * unit;
+        });
+      }
+
+      /* ---- physics: the cursor shoves the ink, springs and neighbours pull it back */
+
+
+      function step() {
+        var reach = REACH * unit, maxOff = MAX_OFFSET * unit;
+        for (var s = 0; s < strokes.length; s++) {
+          var pts = strokes[s], n = pts.length, i, p;
+          for (i = 0; i < n; i++) {
+            p = pts[i];
+            var rx = p.x + p.dx - pointer.x, ry = p.y + p.dy - pointer.y;
+            var d = Math.hypot(rx, ry);
+            if (d < reach) {
+              var f = 1 - d / reach; f *= f;
+              var inv = d > 0.001 ? 1 / d : 0;
+              p.vx += (rx * inv * PUSH * unit * 0.05 + pointer.vx * CARRY * 0.1) * f * 3;
+              p.vy += (ry * inv * PUSH * unit * 0.05 + pointer.vy * CARRY * 0.1) * f * 3;
+            }
+            var a = pts[i > 0 ? i - 1 : i], b = pts[i < n - 1 ? i + 1 : i];
+            p.vx += -SPRING * p.dx + COUPLE * ((a.dx + b.dx) / 2 - p.dx) * 0.2;
+            p.vy += -SPRING * p.dy + COUPLE * ((a.dy + b.dy) / 2 - p.dy) * 0.2;
+          }
+          for (i = 0; i < n; i++) {
+            p = pts[i];
+            p.vx *= DAMP; p.vy *= DAMP;
+            p.dx += p.vx; p.dy += p.vy;
+            var m = Math.hypot(p.dx, p.dy);
+            if (m > maxOff) { p.dx *= maxOff / m; p.dy *= maxOff / m; }
+          }
         }
-        x -= TRACK * unit;
+        pointer.vx *= POINTER_DECAY; pointer.vy *= POINTER_DECAY;
+      }
+
+      /* ---- drawing: one circle per point; the SVG filter melts them together ---- */
+
+      function draw(t) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = INK;
+        var phase = (t / LOOP) * PI * 2, r0 = unit * PEN;
+        for (var s = 0; s < strokes.length; s++) {
+          var pts = strokes[s];
+          for (var i = 0; i < pts.length; i++) {
+            var p = pts[i];
+            // the pen swells and thins along the stroke, each part out of step with its neighbours;
+            // a faster ripple rides on top so the letters keep moving, and a slow wave runs along the line
+            var fixedUnevenness = STROKE_IRREGULARITY * (0.65 * Math.sin(p.shapeSeed * 1.7) + 0.35 * Math.sin(p.shapeSeed * 4.3 + 1.2));
+            var swell = 1 + fixedUnevenness + 0.1 * Math.sin(phase + p.seed * 1.4) + 0.06 * Math.sin(phase * 2 + p.seed * 2.3)
+              + 0.03 * Math.sin(phase * 3 - p.x * 0.012) + p.end * 0.12;
+            var wx = Math.sin(phase + p.seed * 1.9) * unit * 0.03 + Math.sin(phase * 2 - p.y * 0.01) * unit * 0.012;
+            var wy = Math.cos(phase + p.seed * 1.3) * unit * 0.03 + Math.sin(phase * 2 - p.x * 0.008) * unit * 0.016;
+            ctx.beginPath();
+            ctx.arc(p.x + p.dx + wx, p.y + p.dy + wy, Math.max(0.08, r0 * swell), 0, PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      var running = true;
+      var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function frame(now) {
+        if (!reduced) step();
+        draw(reduced ? 0 : now / 1000);
+        if (running) requestAnimationFrame(frame);
+      }
+
+      /* ---- input -------------------------------------------------------------- */
+
+      window.addEventListener("pointermove", function (e) {
+        var now = performance.now(), dt = Math.max(8, now - pointer.last);
+        if (pointer.last && now - pointer.last < 200) {
+          pointer.vx = (e.clientX - pointer.x) * (16 / dt);
+          pointer.vy = (e.clientY - pointer.y) * (16 / dt);
+        }
+        pointer.x = e.clientX; pointer.y = e.clientY; pointer.last = now;
       });
-    });
-  }
+      document.addEventListener("pointerleave", function () { pointer.x = pointer.y = -1e4; });
+      window.addEventListener("resize", layout);
+      document.addEventListener("visibilitychange", function () {
+        running = !document.hidden;
+        if (running) requestAnimationFrame(frame);
+      });
 
-  /* ---- physics: the cursor shoves the ink, springs and neighbours pull it back */
+      window.setLiquidText = function (text) {
+        heading.textContent = String(text);
+        parseText(text);
+        layout();
+      };
 
-
-  function step() {
-    var reach = REACH * unit, maxOff = MAX_OFFSET * unit;
-    for (var s = 0; s < strokes.length; s++) {
-      var pts = strokes[s], n = pts.length, i, p;
-      for (i = 0; i < n; i++) {
-        p = pts[i];
-        var rx = p.x + p.dx - pointer.x, ry = p.y + p.dy - pointer.y;
-        var d = Math.hypot(rx, ry);
-        if (d < reach) {
-          var f = 1 - d / reach; f *= f;
-          var inv = d > 0.001 ? 1 / d : 0;
-          p.vx += (rx * inv * PUSH * unit * 0.05 + pointer.vx * CARRY * 0.1) * f * 3;
-          p.vy += (ry * inv * PUSH * unit * 0.05 + pointer.vy * CARRY * 0.1) * f * 3;
-        }
-        var a = pts[i > 0 ? i - 1 : i], b = pts[i < n - 1 ? i + 1 : i];
-        p.vx += -SPRING * p.dx + COUPLE * ((a.dx + b.dx) / 2 - p.dx) * 0.2;
-        p.vy += -SPRING * p.dy + COUPLE * ((a.dy + b.dy) / 2 - p.dy) * 0.2;
-      }
-      for (i = 0; i < n; i++) {
-        p = pts[i];
-        p.vx *= DAMP; p.vy *= DAMP;
-        p.dx += p.vx; p.dy += p.vy;
-        var m = Math.hypot(p.dx, p.dy);
-        if (m > maxOff) { p.dx *= maxOff / m; p.dy *= maxOff / m; }
-      }
-    }
-    pointer.vx *= POINTER_DECAY; pointer.vy *= POINTER_DECAY;
-  }
-
-  /* ---- drawing: one circle per point; the SVG filter melts them together ---- */
-
-  function draw(t) {
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = INK;
-    var phase = (t / LOOP) * PI * 2, r0 = unit * PEN;
-    for (var s = 0; s < strokes.length; s++) {
-      var pts = strokes[s];
-      for (var i = 0; i < pts.length; i++) {
-        var p = pts[i];
-        // the pen swells and thins along the stroke, each part out of step with its neighbours;
-        // a faster ripple rides on top so the letters keep moving, and a slow wave runs along the line
-        var fixedUnevenness = STROKE_IRREGULARITY * (0.65 * Math.sin(p.shapeSeed * 1.7) + 0.35 * Math.sin(p.shapeSeed * 4.3 + 1.2));
-        var swell = 1 + fixedUnevenness + 0.1 * Math.sin(phase + p.seed * 1.4) + 0.06 * Math.sin(phase * 2 + p.seed * 2.3)
-                      + 0.03 * Math.sin(phase * 3 - p.x * 0.012) + p.end * 0.12;
-        var wx = Math.sin(phase + p.seed * 1.9) * unit * 0.03 + Math.sin(phase * 2 - p.y * 0.01) * unit * 0.012;
-        var wy = Math.cos(phase + p.seed * 1.3) * unit * 0.03 + Math.sin(phase * 2 - p.x * 0.008) * unit * 0.016;
-        ctx.beginPath();
-        ctx.arc(p.x + p.dx + wx, p.y + p.dy + wy, Math.max(0.08, r0 * swell), 0, PI * 2);
-        ctx.fill();
-      }
-    }
-  }
-
-  var running = true;
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  function frame(now) {
-    if (!reduced) step();
-    draw(reduced ? 0 : now / 1000);
-    if (running) requestAnimationFrame(frame);
-  }
-
-  /* ---- input -------------------------------------------------------------- */
-
-  window.addEventListener("pointermove", function (e) {
-    var now = performance.now(), dt = Math.max(8, now - pointer.last);
-    if (pointer.last && now - pointer.last < 200) {
-      pointer.vx = (e.clientX - pointer.x) * (16 / dt);
-      pointer.vy = (e.clientY - pointer.y) * (16 / dt);
-    }
-    pointer.x = e.clientX; pointer.y = e.clientY; pointer.last = now;
-  });
-  document.addEventListener("pointerleave", function () { pointer.x = pointer.y = -1e4; });
-  window.addEventListener("resize", layout);
-  document.addEventListener("visibilitychange", function () {
-    running = !document.hidden;
-    if (running) requestAnimationFrame(frame);
-  });
-
-  window.setLiquidText = function (text) {
-    heading.textContent = String(text);
-    parseText(text);
-    layout();
-  };
-
-  parseText(TEXT);
-  layout();
-  document.documentElement.classList.add("live");
-  requestAnimationFrame(frame);
-})();
-</script>
+      parseText(TEXT);
+      layout();
+      document.documentElement.classList.add("live");
+      requestAnimationFrame(frame);
+    })();
+  </script>
 </body>
+
 </html>
