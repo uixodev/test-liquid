@@ -8,13 +8,16 @@ canvas{width:100%;height:100%;position:absolute;inset:0;touch-action:none}
 small{position:absolute;bottom:24px;left:0;right:0;text-align:center;pointer-events:none;opacity:.5;font-size:12px}
 </style></head><body><main><canvas id="stage"></canvas><small>MOVE YOUR CURSOR THROUGH THE INK · INDEPENDENT RECREATION</small></main>
 <script type="module">
-const settings={text:"LIQUID",ink:"#161511",radius:105,push:30,stiffness:.035,damping:.88,fontScale:.21,grid:4};
+const settings={text:"LIQUID",ink:"#161511",radius:105,push:30,stiffness:.035,damping:.88,fontScale:.21,grid:4,smoothness:5,threshold:95};
 const canvas=document.querySelector("canvas"),pencil=canvas.getContext("2d");
 const mask=document.createElement("canvas"),brush=mask.getContext("2d",{willReadFrequently:true});
+const inkLayer=document.createElement("canvas"),inkPencil=inkLayer.getContext("2d",{willReadFrequently:true});
+const smoothLayer=document.createElement("canvas"),smoothPencil=smoothLayer.getContext("2d",{willReadFrequently:true});
 let width=0,height=0,points=[],pointer={x:-999,y:-999,px:-999,py:-999};
 function build(){
 width=canvas.clientWidth;height=canvas.clientHeight;
 const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;pencil.setTransform(dpr,0,0,dpr,0,0);
+inkLayer.width=smoothLayer.width=Math.ceil(width/2);inkLayer.height=smoothLayer.height=Math.ceil(height/2);
 mask.width=width;mask.height=height;brush.clearRect(0,0,width,height);
 let size=Math.min(width*settings.fontScale,240);brush.font=`900 ${size}px Arial`;
 while(brush.measureText(settings.text).width>width*.91){size*=.95;brush.font=`900 ${size}px Arial`}
@@ -24,7 +27,8 @@ for(let y=0;y<height;y+=settings.grid)for(let x=0;x<width;x+=settings.grid){
 if(pixels[(y*width+x)*4+3]>140)points.push({x,y,px:x,py:y,vx:0,vy:0});
 }}
 function frame(){
-pencil.clearRect(0,0,width,height);pencil.fillStyle=settings.ink;
+pencil.clearRect(0,0,width,height);
+inkPencil.setTransform(.5,0,0,.5,0,0);inkPencil.clearRect(0,0,width,height);inkPencil.fillStyle="#000";
 const dx=pointer.x-pointer.px,dy=pointer.y-pointer.py;
 for(const p of points){
 const vx=p.px-pointer.x,vy=p.py-pointer.y,dist=Math.hypot(vx,vy);
@@ -34,8 +38,25 @@ p.vx+=(vx/dist*force+dx*.07)*.12;p.vy+=(vy/dist*force+dy*.07)*.12;
 }
 p.vx+=(p.x-p.px)*settings.stiffness;p.vy+=(p.y-p.py)*settings.stiffness;
 p.vx*=settings.damping;p.vy*=settings.damping;p.px+=p.vx;p.py+=p.vy;
-pencil.fillRect(p.px,p.py,settings.grid+1,settings.grid+1);
+inkPencil.beginPath();inkPencil.arc(p.px+settings.grid/2,p.py+settings.grid/2,settings.grid*.83,0,Math.PI*2);inkPencil.fill();
 }
+// Blur neighboring ink particles into a continuous surface.
+smoothPencil.setTransform(1,0,0,1,0,0);
+smoothPencil.clearRect(0,0,smoothLayer.width,smoothLayer.height);
+smoothPencil.filter=`blur(${settings.smoothness/2}px)`;
+smoothPencil.drawImage(inkLayer,0,0);
+smoothPencil.filter="none";
+// Turn the soft blur into a crisp, rounded ink silhouette.
+const image=smoothPencil.getImageData(0,0,smoothLayer.width,smoothLayer.height);
+const data=image.data;
+for(let i=0;i<data.length;i+=4){
+const a=data[i+3];
+data[i]=22;data[i+1]=21;data[i+2]=17;
+data[i+3]=a>=settings.threshold?255:0;
+}
+smoothPencil.putImageData(image,0,0);
+pencil.imageSmoothingEnabled=true;
+pencil.drawImage(smoothLayer,0,0,width,height);
 pointer.px=pointer.x;pointer.py=pointer.y;requestAnimationFrame(frame)}
 window.addEventListener("pointermove",e=>{pointer.x=e.clientX;pointer.y=e.clientY});
 window.addEventListener("pointerleave",()=>{pointer.x=-999;pointer.y=-999});
