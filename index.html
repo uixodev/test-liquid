@@ -41,6 +41,28 @@
   var SPACE = 0.7;               // gap between words
   var LINE_GAP = 0.45;           // gap between lines when the name wraps
 
+  // ===== CUSTOMISE YOUR LIQUID TEXT HERE =====
+  // Appearance
+  var SWELL_SLOW = 0.13;       // large, slow changes in stroke thickness
+  var SWELL_MEDIUM = 0.07;     // medium ripples in stroke thickness
+  var SWELL_FAST = 0.05;       // small, quick ripples
+  var END_SWELL = 0.2;         // extra thickness at stroke ends
+  var WAVE_X = 0.03;           // automatic sideways movement
+  var WAVE_Y = 0.03;           // automatic vertical movement
+  var WAVE_Y_EXTRA = 0.025;    // secondary vertical wave
+
+  // Mouse and spring physics
+  var REACH = 0.5;             // cursor interaction radius
+  var PUSH = 0.6;              // force pushing ink away from cursor
+  var CARRY = 0.2;             // mouse motion dragging ink
+  var SPRING = 0.02;           // return force toward original shape
+  var DAMP = 0.9;              // motion retention (higher = longer wobble)
+  var COUPLE = 0.9;            // how strongly neighbouring points follow
+  var MAX_OFFSET = 0.4;        // maximum deformation, in letter heights
+  var POINT_SPACING = 0.5;     // sample spacing, relative to PEN
+  var POINTER_DECAY = 0.8;     // how quickly cursor momentum fades
+  // ===== END CUSTOM SETTINGS =====
+
   var canvas = document.getElementById("ink");
   var ctx = canvas.getContext("2d");
   var blurNode = document.getElementById("blur");
@@ -203,7 +225,7 @@
     var lineH = unit * (1 + 2 * PEN);
     var y0 = (H - (lines.length * lineH + (lines.length - 1) * unit * LINE_GAP)) / 2;
 
-    blurNode.setAttribute("stdDeviation", (unit * PEN * 0.5).toFixed(2));
+    blurNode.setAttribute("stdDeviation", (unit * PEN * POINT_SPACING).toFixed(2));
 
     strokes = [];
     lines.forEach(function (line, li) {
@@ -230,10 +252,9 @@
 
   /* ---- physics: the cursor shoves the ink, springs and neighbours pull it back */
 
-  var REACH = 0.5, PUSH = 0.6, CARRY = 0.2, SPRING = 0.02, DAMP = 0.9, COUPLE = 0.9;
 
   function step() {
-    var reach = REACH * unit, maxOff = 0.4 * unit;
+    var reach = REACH * unit, maxOff = MAX_OFFSET * unit;
     for (var s = 0; s < strokes.length; s++) {
       var pts = strokes[s], n = pts.length, i, p;
       for (i = 0; i < n; i++) {
@@ -258,7 +279,7 @@
         if (m > maxOff) { p.dx *= maxOff / m; p.dy *= maxOff / m; }
       }
     }
-    pointer.vx *= 0.8; pointer.vy *= 0.8;
+    pointer.vx *= POINTER_DECAY; pointer.vy *= POINTER_DECAY;
   }
 
   /* ---- drawing: one circle per point; the SVG filter melts them together ---- */
