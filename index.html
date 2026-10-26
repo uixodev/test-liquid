@@ -59,26 +59,78 @@
   }
   function cat() { return Array.prototype.concat.apply([], arguments); }
 
-  // each letter: its width (in heights) and a list of strokes (polylines)
+  /* THE TEXT. Edit the words in the <h1> above, or open the page with ?text=Your words.
+     From the console: setLiquidText("Anything"). Any letter that is in LETTERS below works. */
+
+  /* THE ALPHABET. Each letter is  { w: width in letter heights, s: [strokes] }
+     A stroke is a polyline of [x, y] points in a box 1 high, y pointing down (0 = top, 1 = baseline).
+     arc(cx, cy, rx, ry, fromAngle, toAngle, steps) makes a curved stroke; cat() joins pieces.
+     To add a character: copy a line, change the key and the points. A stroke with one
+     point repeated, [[x, y], [x, y]], is a dot. Nothing else needs changing. */
   var LETTERS = {
-    M: { w: 1.05, s: [[[0, 1], [0, 0.12], [0.52, 0.72], [1.05, 0.12], [1.05, 1]]] },
     A: { w: 0.98, s: [[[0, 1], [0.49, 0.02], [0.98, 1]], [[0.2, 0.7], [0.78, 0.7]]] },
-    U: { w: 0.8, s: [cat([[0, 0]], arc(0.4, 0.62, 0.4, 0.38, PI, 0, 10), [[0.8, 0]])] },
-    R: { w: 0.82, s: [
-      [[0, 1], [0, 0]],
-      cat([[0, 0.02]], arc(0.4, 0.28, 0.42, 0.26, -PI / 2, PI / 2, 8), [[0, 0.54]]),
-      [[0.38, 0.55], [0.82, 1]]
-    ] },
-    I: { w: 0, s: [[[0, 0], [0, 1]]] },
+    B: { w: 0.84, s: [[[0, 0], [0, 1]],
+         cat([[0, 0.02]], arc(0.36, 0.26, 0.42, 0.24, -PI / 2, PI / 2, 8), [[0, 0.5]]),
+         cat([[0, 0.5]], arc(0.38, 0.75, 0.46, 0.25, -PI / 2, PI / 2, 8), [[0, 1]])] },
     C: { w: 0.86, s: [arc(0.5, 0.5, 0.5, 0.5, -PI * 0.22, -PI * 1.78, 16).map(function (p) { return [p[0] * 0.86, p[1]]; })] },
+    D: { w: 0.85, s: [[[0, 0], [0, 1]], cat([[0, 0.02]], arc(0.35, 0.5, 0.5, 0.48, -PI / 2, PI / 2, 12), [[0, 0.98]])] },
     E: { w: 0.7, s: [[[0, 0], [0, 1]], [[0, 0], [0.7, 0]], [[0, 0.5], [0.55, 0.5]], [[0, 1], [0.7, 1]]] },
-    O: { w: 0.92, s: [arc(0.46, 0.5, 0.46, 0.5, 0, PI * 2, 20)] },
-    Y: { w: 0.92, s: [[[0, 0], [0.46, 0.52]], [[0.92, 0], [0.46, 0.52], [0.46, 1]]] },
+    F: { w: 0.7, s: [[[0, 0], [0, 1]], [[0, 0], [0.7, 0]], [[0, 0.5], [0.55, 0.5]]] },
+    G: { w: 0.86, s: [cat(arc(0.5, 0.5, 0.5, 0.5, -PI * 0.22, -PI * 1.78, 16).map(function (p) { return [p[0] * 0.86, p[1]]; }),
+         [[0.86, 0.55], [0.58, 0.55]])] },
+    H: { w: 0.88, s: [[[0, 0], [0, 1]], [[0.88, 0], [0.88, 1]], [[0, 0.5], [0.88, 0.5]]] },
+    I: { w: 0, s: [[[0, 0], [0, 1]]] },
+    J: { w: 0.6, s: [cat([[0.6, 0]], arc(0.3, 0.7, 0.3, 0.3, 0, PI * 0.9, 8))] },
+    K: { w: 0.8, s: [[[0, 0], [0, 1]], [[0.8, 0], [0, 0.62]], [[0.25, 0.42], [0.8, 1]]] },
+    L: { w: 0.65, s: [[[0, 0], [0, 1], [0.65, 1]]] },
+    M: { w: 1.05, s: [[[0, 1], [0, 0.12], [0.52, 0.72], [1.05, 0.12], [1.05, 1]]] },
     N: { w: 0.9, s: [[[0, 1], [0, 0], [0.9, 1], [0.9, 0]]] },
-    H: { w: 0.88, s: [[[0, 0], [0, 1]], [[0.88, 0], [0.88, 1]], [[0, 0.5], [0.88, 0.5]]] }
+    O: { w: 0.92, s: [arc(0.46, 0.5, 0.46, 0.5, 0, PI * 2, 20)] },
+    P: { w: 0.82, s: [[[0, 1], [0, 0]], cat([[0, 0.02]], arc(0.4, 0.28, 0.42, 0.26, -PI / 2, PI / 2, 8), [[0, 0.54]])] },
+    Q: { w: 0.92, s: [arc(0.46, 0.5, 0.46, 0.5, 0, PI * 2, 20), [[0.55, 0.72], [0.95, 1.08]]] },
+    R: { w: 0.82, s: [[[0, 1], [0, 0]],
+         cat([[0, 0.02]], arc(0.4, 0.28, 0.42, 0.26, -PI / 2, PI / 2, 8), [[0, 0.54]]),
+         [[0.38, 0.55], [0.82, 1]]] },
+    S: { w: 0.8, s: [cat(arc(0.4, 0.25, 0.4, 0.25, -PI * 0.2, -PI * 1.5, 12), arc(0.4, 0.75, 0.4, 0.25, -PI / 2, PI * 0.8, 12))] },
+    T: { w: 0.8, s: [[[0, 0], [0.8, 0]], [[0.4, 0], [0.4, 1]]] },
+    U: { w: 0.8, s: [cat([[0, 0]], arc(0.4, 0.62, 0.4, 0.38, PI, 0, 10), [[0.8, 0]])] },
+    V: { w: 0.9, s: [[[0, 0], [0.45, 1], [0.9, 0]]] },
+    W: { w: 1.3, s: [[[0, 0], [0.3, 1], [0.65, 0.3], [1, 1], [1.3, 0]]] },
+    X: { w: 0.8, s: [[[0, 0], [0.8, 1]], [[0.8, 0], [0, 1]]] },
+    Y: { w: 0.92, s: [[[0, 0], [0.46, 0.52]], [[0.92, 0], [0.46, 0.52], [0.46, 1]]] },
+    Z: { w: 0.75, s: [[[0, 0], [0.75, 0], [0, 1], [0.75, 1]]] },
+
+    0: { w: 0.7, s: [arc(0.35, 0.5, 0.35, 0.5, 0, PI * 2, 16)] },
+    1: { w: 0.3, s: [[[0, 0.2], [0.3, 0], [0.3, 1]]] },
+    2: { w: 0.76, s: [cat(arc(0.38, 0.28, 0.38, 0.28, -PI * 0.95, PI * 0.15, 10), [[0, 1], [0.76, 1]])] },
+    3: { w: 0.78, s: [cat(arc(0.36, 0.25, 0.36, 0.25, -PI * 0.85, PI / 2, 10), arc(0.38, 0.75, 0.4, 0.25, -PI / 2, PI * 0.85, 10))] },
+    4: { w: 0.8, s: [[[0.55, 1], [0.55, 0], [0, 0.68], [0.8, 0.68]]] },
+    5: { w: 0.76, s: [cat([[0.72, 0], [0.05, 0], [0.02, 0.45]], arc(0.38, 0.72, 0.38, 0.28, -PI * 0.7, PI * 0.75, 10))] },
+    6: { w: 0.74, s: [arc(0.37, 0.7, 0.37, 0.3, 0, PI * 2, 14), [[0.65, 0], [0.1, 0.4], [0, 0.7]]] },
+    7: { w: 0.75, s: [[[0, 0], [0.75, 0], [0.25, 1]]] },
+    8: { w: 0.75, s: [arc(0.37, 0.25, 0.34, 0.25, 0, PI * 2, 12), arc(0.37, 0.75, 0.38, 0.25, 0, PI * 2, 12)] },
+    9: { w: 0.74, s: [arc(0.37, 0.3, 0.37, 0.3, 0, PI * 2, 14), [[0.74, 0.3], [0.65, 0.8], [0.15, 1]]] },
+
+    ".": { w: 0, s: [[[0, 1], [0, 1]]] },
+    ",": { w: 0, s: [[[0, 1], [-0.08, 1.18]]] },
+    "!": { w: 0, s: [[[0, 0], [0, 0.62]], [[0, 1], [0, 1]]] },
+    "?": { w: 0.7, s: [cat(arc(0.35, 0.25, 0.35, 0.25, -PI * 0.85, PI * 0.35, 10), [[0.35, 0.62]]), [[0.35, 1], [0.35, 1]]] },
+    "-": { w: 0.5, s: [[[0, 0.55], [0.5, 0.55]]] },
+    "'": { w: 0, s: [[[0, 0], [0, 0.25]]] },
+    ":": { w: 0, s: [[[0, 0.3], [0, 0.3]], [[0, 0.85], [0, 0.85]]] },
+    "/": { w: 0.5, s: [[[0.5, 0], [0, 1]]] }
   };
 
-  var WORDS = ["MAURICE", "MOYNIHAN"];
+  var heading = document.querySelector("h1");
+  var TEXT = new URLSearchParams(location.search).get("text") || heading.textContent;
+  var words = [];                // the text as a list of words made only of known letters
+
+  function parseText(text) {
+    words = String(text).toUpperCase().split(/\s+/).map(function (w) {
+      return w.split("").filter(function (c) { return LETTERS[c]; }).join("");
+    }).filter(Boolean);
+    if (!words.length) words = ["?"];
+  }
 
   /* ---- state ------------------------------------------------------------- */
 
@@ -95,8 +147,25 @@
   }
   function lineWidth(line) {
     var w = 0;
-    line.split("#").forEach(function (word, i) { w += (i ? SPACE : 0) + wordWidth(word); });
+    line.forEach(function (word, i) { w += (i ? SPACE : 0) + wordWidth(word); });
     return w;
+  }
+
+  /* Split the words into n lines of roughly equal width. */
+  function breakLines(n) {
+    var total = lineWidth(words), limit = Math.max(total / n * 1.08, Math.max.apply(null, words.map(wordWidth)));
+    var lines = [[]];
+    words.forEach(function (word) {
+      var cur = lines[lines.length - 1];
+      if (cur.length && lineWidth(cur.concat(word)) > limit) lines.push(cur = []);
+      cur.push(word);
+    });
+    return lines;
+  }
+
+  function fit(lines, narrow) {
+    var rows = lines.length + (lines.length - 1) * LINE_GAP;
+    return Math.min((W * (narrow ? 0.9 : 0.82)) / Math.max.apply(null, lines.map(lineWidth)), (H * 0.6) / (rows + 2 * PEN));
   }
 
   function resample(poly, spacing) {
@@ -123,12 +192,14 @@
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
 
-    // one line on wide screens, two on narrow ones
-    var narrow = W < 720;
-    var lines = narrow ? WORDS : [WORDS.join("#")];
-    var widest = Math.max.apply(null, lines.map(lineWidth));
-    var rows = lines.length + (lines.length - 1) * LINE_GAP;
-    unit = Math.min((W * (narrow ? 0.9 : 0.82)) / widest, (H * 0.6) / (rows + 2 * PEN));
+    // as few lines as will keep the letters big enough to read, otherwise the most that helps
+    var narrow = W < 720, lines = null, best = 0;
+    for (var n = 1; n <= Math.min(words.length, 6); n++) {
+      var tryLines = breakLines(n), u = fit(tryLines, narrow);
+      if (u > best) { best = u; lines = tryLines; }
+      if (u >= 60) { best = u; lines = tryLines; break; }
+    }
+    unit = best;
     var lineH = unit * (1 + 2 * PEN);
     var y0 = (H - (lines.length * lineH + (lines.length - 1) * unit * LINE_GAP)) / 2;
 
@@ -138,7 +209,7 @@
     lines.forEach(function (line, li) {
       var x = (W - lineWidth(line) * unit) / 2;
       var top = y0 + li * (lineH + unit * LINE_GAP) + unit * PEN;
-      line.split("#").forEach(function (word, wi) {
+      line.forEach(function (word, wi) {
         if (wi) x += SPACE * unit;
         for (var i = 0; i < word.length; i++) {
           var g = LETTERS[word[i]], ox = x + PEN * unit;
@@ -239,6 +310,13 @@
     if (running) requestAnimationFrame(frame);
   });
 
+  window.setLiquidText = function (text) {
+    heading.textContent = String(text);
+    parseText(text);
+    layout();
+  };
+
+  parseText(TEXT);
   layout();
   document.documentElement.classList.add("live");
   requestAnimationFrame(frame);
