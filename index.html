@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Liquid Type — personal experiment</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#efede6;color:#161511;font-family:Arial,sans-serif}
+main{height:100%;display:grid;place-items:center;overflow:hidden;position:relative}
+canvas{width:100%;height:100%;position:absolute;inset:0;touch-action:none}
+small{position:absolute;bottom:24px;left:0;right:0;text-align:center;pointer-events:none;opacity:.5;font-size:12px}
+</style></head><body><main><canvas id="stage"></canvas><small>MOVE YOUR CURSOR THROUGH THE INK · INDEPENDENT RECREATION</small></main>
+<script type="module">
+const settings={text:"LIQUID",ink:"#161511",radius:105,push:30,stiffness:.035,damping:.88,fontScale:.21,grid:4};
+const canvas=document.querySelector("canvas"),pencil=canvas.getContext("2d");
+const mask=document.createElement("canvas"),brush=mask.getContext("2d",{willReadFrequently:true});
+let width=0,height=0,points=[],pointer={x:-999,y:-999,px:-999,py:-999};
+function build(){
+width=canvas.clientWidth;height=canvas.clientHeight;
+const dpr=Math.min(devicePixelRatio||1,2);canvas.width=width*dpr;canvas.height=height*dpr;pencil.setTransform(dpr,0,0,dpr,0,0);
+mask.width=width;mask.height=height;brush.clearRect(0,0,width,height);
+let size=Math.min(width*settings.fontScale,240);brush.font=`900 ${size}px Arial`;
+while(brush.measureText(settings.text).width>width*.91){size*=.95;brush.font=`900 ${size}px Arial`}
+brush.fillStyle="#000";brush.textAlign="center";brush.textBaseline="middle";brush.fillText(settings.text,width/2,height/2);
+const pixels=brush.getImageData(0,0,width,height).data;points=[];
+for(let y=0;y<height;y+=settings.grid)for(let x=0;x<width;x+=settings.grid){
+if(pixels[(y*width+x)*4+3]>140)points.push({x,y,px:x,py:y,vx:0,vy:0});
+}}
+function frame(){
+pencil.clearRect(0,0,width,height);pencil.fillStyle=settings.ink;
+const dx=pointer.x-pointer.px,dy=pointer.y-pointer.py;
+for(const p of points){
+const vx=p.px-pointer.x,vy=p.py-pointer.y,dist=Math.hypot(vx,vy);
+if(dist<settings.radius&&dist>0){
+const force=(1-dist/settings.radius)*settings.push;
+p.vx+=(vx/dist*force+dx*.07)*.12;p.vy+=(vy/dist*force+dy*.07)*.12;
+}
+p.vx+=(p.x-p.px)*settings.stiffness;p.vy+=(p.y-p.py)*settings.stiffness;
+p.vx*=settings.damping;p.vy*=settings.damping;p.px+=p.vx;p.py+=p.vy;
+pencil.fillRect(p.px,p.py,settings.grid+1,settings.grid+1);
+}
+pointer.px=pointer.x;pointer.py=pointer.y;requestAnimationFrame(frame)}
+window.addEventListener("pointermove",e=>{pointer.x=e.clientX;pointer.y=e.clientY});
+window.addEventListener("pointerleave",()=>{pointer.x=-999;pointer.y=-999});
+window.addEventListener("resize",build);
+window.liquidSettings=settings;build();frame();
+</script></body></html>
