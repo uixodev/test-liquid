@@ -1,0 +1,2004 @@
+/* ============================================================
+   MOYNIHAN — punk = discipline with one deranged element per page
+   Ground: bone. Ink: near-black. Three voices:
+     Archivo shouts (headlines, nameplates),
+     Space Mono files (labels, registers, stamps),
+     Newsreader mutters (his prose, the asides under the shouting).
+   The serif is the second voice, never the house style.
+   (--red-* kept as aliases so nothing breaks; they resolve to
+    ink/bone — the accent is retired, the work supplies the colour.)
+   ============================================================ */
+
+:root{
+  --bone:#EFEDE6;
+  --bone-deep:#E6E3D9;
+  --ink:#161511;
+  --ink-soft:#4c4a43;
+  --red:#161511;          /* accent retired — the work supplies the colour */
+  --red-deep:#161511;     /* small type on bone — 15:1 */
+  --red-lift:#EFEDE6;     /* sits on an ink ground, so it lifts to bone */
+  --paper:#FFFFFF;
+  --sans:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"Space Mono","Courier New",monospace;
+  --serif: "Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;  /* serif parked 2 Sep — restore Newsreader here */
+  --pad:clamp(1rem, 3.4vw, 3rem);
+  --hair:1.5px solid var(--ink);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto;} }
+
+body{
+  background:var(--bone);
+  color:var(--ink);
+  overflow-x:clip;              /* full-bleed frames use 100vw; clip, not hidden,
+                                   so position:sticky keeps working */
+  font-family:var(--sans);
+  font-size:1.0625rem;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+
+img,video{max-width:100%;display:block;}
+a{color:inherit;}
+
+::selection{background:var(--red);color:var(--bone);}
+
+:focus-visible{outline:3px solid var(--red);outline-offset:3px;border-radius:1px;}
+
+.skip{
+  position:absolute;left:var(--pad);top:-4rem;z-index:99;
+  background:var(--ink);color:var(--bone);font-family:var(--mono);
+  font-size:.75rem;text-transform:uppercase;letter-spacing:.14em;
+  padding:.7rem 1rem;text-decoration:none;transition:top .15s;
+}
+.skip:focus{top:.8rem;}
+
+/* ---------- mono utility voices ---------- */
+.m{
+  font-family:var(--mono);
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  line-height:1.6;
+}
+.m--soft{color:var(--ink-soft);}
+.m--red{color:var(--red-deep);}
+
+/* ---------- nav ---------- */
+.nav{
+  position:relative;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.7rem var(--pad);
+  border-bottom:var(--hair);
+  background:var(--bone);
+}
+.nav__name{
+  font-family:var(--mono);font-weight:700;font-size:.78rem;
+  text-transform:uppercase;letter-spacing:.22em;text-decoration:none;
+}
+.nav__name:hover{color:var(--red-deep);}
+/* homepage: the h1 is the masthead, so the corner carries no name and the
+   menu keeps its place at the right, exactly where the inner pages put it */
+/* ---------- the mark: MM as one ligature, sharing a stem ----------
+   Twenty-eight cuts on a power curve burn the foot of it away. At rest it is
+   a solid block, because at nav size the fine cuts fall under a pixel and go
+   to grey; the sunset arrives on hover, and rises while you are there. */
+.nav__mark{display:inline-flex;align-items:center;color:var(--ink);text-decoration:none;padding:.15rem 0;}
+/* 5rem x 9.3rem of artwork plus .48rem of bleed all round, pulled back out
+   with the negative margin: the mark and the nav occupy exactly the space
+   they did without it. The bleed is where the cursor pushes the ink to —
+   without it the ripple hits the canvas edge and is cut off in a straight
+   line. If PHY.max in mark.js changes, this has to change with it. */
+.mark{height:5.96rem;width:10.26rem;margin:-.48rem;display:block;}
+/* the homepage corner is no longer empty. No rule here either — on the
+   homepage it would only be ruling off empty space; inner pages keep it. */
+/* On the homepage the nav is not a band across the top — it floats over the
+   page. The hero then starts at the very top of the viewport, so the trail
+   has the whole screen to play in and nothing is cut off along a nav edge.
+   Inner pages keep the ordinary nav that takes up space. */
+/* The homepage nav is pinned to the viewport, so the mark is still in the top
+   left once you have scrolled to the menu. Over the hero it floats on nothing,
+   as it always has; the moment the page starts moving under it, the bone band
+   and the rule come back so the mark never sits on the wordmark or on a row's
+   photograph. */
+.nav--home{
+  justify-content:space-between;
+  position:fixed;top:0;left:0;right:0;
+  background:transparent;border-bottom:none;
+  transition:background .18s ease;
+}
+.nav--home.nav--stuck{background:var(--bone);}
+/* .nav__dup marks the four links that are also menu rows further down the
+   homepage. Nothing styles them here — the scroll handler in index.html fades
+   them out with the hero so the page never shows the same menu twice, and
+   opacity/visibility arrive as inline style. No JS, no fade, no harm: the
+   four just stay, which is what a phone gets anyway. */
+@media (prefers-reduced-motion:reduce){.nav--home{transition:none;}}
+.nav ul{display:flex;gap:clamp(1rem,3vw,2.6rem);list-style:none;flex-wrap:wrap;}
+/* ⛳ 5 Oct: ARCHIVO, NOT MONO. His call, option C of five rendered. On the
+   homepage these four words were the only mono on the first screen — the
+   name, the sentence and the menu rows they repeat are all Archivo, so the
+   bar read as a strip from another site. Mono still does the labels, stamps
+   and registers; navigation is not a label. Bold and a touch condensed so it
+   sits in the name's family without echoing the name's 900/112% setting.
+   One component: every page's nav takes this. */
+.nav a{
+  font-family:var(--sans);font-weight:700;font-stretch:94%;
+  font-size:.70rem;text-transform:uppercase;
+  letter-spacing:.14em;text-decoration:none;
+}
+/* 7 Oct 9pm: an invisible click area well past the letters, for the glove cursor (his call; the
+   bigger type he tried was rejected, so the letters stay .70rem). It is an empty ::after laid over the
+   link, so it takes no room and nothing on the bar moves (padding + negative margin shifted the
+   inner-page text 2px). Desktop only; phones have their own
+   44px rule under TAP TARGETS. */
+@media (hover:hover) and (pointer:fine){.nav a{position:relative;}.nav a::after{content:'';position:absolute;inset:-.75rem -.6rem;}}
+@media (hover:hover) and (pointer:fine){.nav a:hover{color:var(--red-deep);text-decoration:underline;text-underline-offset:.35em;}}
+.nav a[aria-current]{color:var(--red-deep);}
+/* Music is on the nav but not open. Not a link, and plainly out of
+   reach — the same face as its neighbours, held well back. */
+.nav__soon span{
+  font-family:var(--sans);font-weight:700;font-stretch:94%;
+  font-size:.70rem;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--ink);opacity:.3;cursor:default;
+}
+.nav__hidden a{
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--ink-soft);
+}
+.nav__hidden a:focus-visible{color:var(--ink);text-decoration:none;}
+@media (hover:hover) and (pointer:fine){.nav__hidden a:hover{color:var(--ink);text-decoration:none;}}
+/* the door: the toad, in ink. At rest it sits. On hover it hops on the spot,
+   and the loop is closed — the cycle starts and ends at the same resting
+   pose, so it can run forever without a seam. Squash before the launch and
+   again on the landing is what makes it read as a hop at 22px; a swapped
+   silhouette does not, at this size it is just a lump changing shape. */
+.nav-icon{display:block;transform-origin:50% 100%;transition:transform .16s ease;}
+@keyframes toad-hop{
+   0%  {transform:translateY(0)    rotate(0deg)    scale(1,1);}
+  11%  {transform:translateY(1px)  rotate(0deg)    scale(1.13,.83);}
+  24%  {transform:translateY(-5px) rotate(-3deg)   scale(.90,1.14);}
+  46%  {transform:translateY(-13px)rotate(-7.5deg) scale(.98,1.03);}
+  68%  {transform:translateY(-5px) rotate(-3deg)   scale(1.02,.99);}
+  80%  {transform:translateY(0)    rotate(0deg)    scale(1.15,.80);}
+  90%  {transform:translateY(-1px) rotate(0deg)    scale(.97,1.05);}
+ 100%  {transform:translateY(0)    rotate(0deg)    scale(1,1);}
+}
+.nav__hidden a:focus-visible .nav-icon{
+  transition:none;
+  animation:toad-hop .72s cubic-bezier(.35,.05,.4,1) infinite;
+}
+@media (hover:hover) and (pointer:fine){.nav__hidden a:hover .nav-icon{
+  transition:none;
+  animation:toad-hop .72s cubic-bezier(.35,.05,.4,1) infinite;
+}}
+@media (prefers-reduced-motion:reduce){
+  .nav__hidden a:hover .nav-icon,.nav__hidden a:focus-visible .nav-icon{
+    animation:none;transform:translateY(-2px);
+  }
+}
+
+/* ---------- stamps (rubber-stamp voice; always aria-hidden) ---------- */
+.stamp{
+  display:inline-block;
+  font-family:var(--mono);font-weight:700;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.24em;
+  color:var(--red);border:2.5px solid var(--red);
+  padding:.35em .8em .3em;
+  transform:rotate(-3.5deg);
+  border-radius:2px;
+  mix-blend-mode:multiply;
+}
+
+/* ============================================================
+   HOME — the one deranged element lives here
+   ============================================================ */
+/* The hero is the first screen: nav + hero = one viewport. Two rows —
+   headroom above, the name block at the foot. The headroom is the
+   trail's playground; at rest, for a fine pointer, it holds nothing.
+   For no-JS / touch / reduced-motion it holds the resting collage,
+   and --shelf is the minimum height that collage needs (two staggered
+   rows of cards), so the cards can never reach the name at any
+   viewport: the row is at least as tall as they are, by construction. */
+.hero{
+  --card:clamp(7rem,13.2vw,11.5rem);              /* trail card width */
+  --shelf-pad:clamp(1rem,3vh,2.4rem);             /* headroom above the top row */
+  /* one row of objects, plus the wordmark's line box, which at
+     line-height .84 reaches ~.12em above its own grid row */
+  --shelf:calc(var(--card) * 1.22 + var(--shelf-pad) + var(--nav-h) + 1.6rem + 1.8vw);
+  --nav-h:6.7rem;   /* measured height of the floating nav, 107px */
+  position:relative;
+  min-height:100vh;
+  min-height:100svh;
+  /* ⛔ NO overflow:hidden HERE, AND THAT IS DELIBERATE. It used to live on
+     the hero, and the only thing that ever needed it was the trail, which
+     now carries its own (see .trail). Putting it back breaks the vanishing
+     point: the name and the sentence hold their place on screen by being
+     pushed DOWN the document, so a clip on the hero cuts them off along the
+     hero's bottom edge — which is exactly where they are heading. The
+     sideways overflow the big name makes is already handled by
+     body{overflow-x:clip}. */
+  display:grid;
+  grid-template-rows:minmax(var(--shelf),1fr) auto;
+  /* the extra 1.35rem is the room the glasses stand in — the only thing
+     on this page that moves the name and the sentence, and it moves them
+     by 22px, not by their own full height */
+  padding-bottom:calc(clamp(1.4rem,3.6vh,2.8rem) + 3.25rem);
+  border-bottom:var(--hair);
+}
+/* with a fine pointer nothing rests in the headroom, so its minimum is only
+   breathing room; the first screen then fits short laptops (1280×720) too */
+html.trail-live .hero{--shelf:calc(var(--card) * 1.1 + var(--nav-h));}
+/* short screens (1366×768, 1280×720): tighten the headroom so the first
+   screen still ends on the sentence */
+@media (max-height:800px) and (min-width:769px){
+  .hero{--shelf:calc(var(--card) * 1.02 + var(--shelf-pad) + var(--nav-h) + 1.6rem + 1.8vw);}
+}
+
+/* ---- the landing screen ----
+   ⛔ THERE IS NO RUNWAY AND THE HERO IS NOT STICKY. Both were built and both
+   are gone: he wants the menu moving on the first pixel of scroll, so the
+   hero is an ordinary 100vh block that scrolls away like everything else.
+   ⛳ What holds the name and the sentence in the middle of the screen while
+   that happens is NOT this — it is the transform in index.html, which locks
+   them to the centre of the VIEWPORT and shrinks them into it. That is why
+   the hero can scroll freely underneath them without dragging them along.
+   .hero-stage is now an ordinary wrapper. It stays because giving the hero a
+   runway again is a height on it and a position:sticky here, and it has been
+   asked for and withdrawn once already.
+   The pair sit on the hero's centre line — 1fr auto 1fr, and padding-bottom
+   goes because that padding is what used to hold them down at the bottom.
+   The glasses are absolute against the hero's bottom edge and out of this
+   flow, so they stay at the foot of the screen as the scroll cue. */
+@media (min-width:769px){
+  /* ---- the runway, and why it is now zero ----
+     --stage is how far the page scrolls before the menu's top edge reaches
+     the bottom of the screen. The hero is sticky inside a stage that tall, so
+     for the whole of --stage NOTHING ON SCREEN MOVES except the wordmark
+     breaking up. That frozen beat is what read as a DELAY — you scroll, the
+     page does not answer, and the animation appears to be holding the page
+     hostage while it finishes.
+     ⛳ AT 0 THE PAGE ANSWERS ON THE FIRST PIXEL. The stage is exactly one
+     screen, the sticky has nothing to travel, and the menu starts rising
+     immediately — while the wordmark is still coming apart.
+     ⛳ AND THE WORDMARK STILL PLAYS IN PLACE, FOR FREE. It is position:fixed
+     and the canvas is position:fixed, so the BROWSER holds both against the
+     viewport on the compositor while the document scrolls underneath. No
+     script runs per frame to keep them there.
+     ⛔ THIS IS NOT THE THING THAT WENT JITTERY. That was a version which left
+     the pair in normal flow and had JS write a scroll-cancelling translate
+     every frame — main thread against compositor, so every hitch showed as a
+     slip the full size of the scroll. See the pin below. Nothing here asks
+     the script to match a scroll position, and nothing ever should.
+     70vh, 36vh and 16vh have all been tried as a runway. Put a number back
+     here if he wants the beat again; it is the only knob. */
+  /* ⛳ 15 Oct, his call: the first screen ended exactly on the hero's bottom rule, so nothing said the
+     page went on. --peek lifts the rule (and the top of the menu) into view at the bottom edge.
+     ⛳ Same evening, reverted to 0: "I love the minimalism of the page before we moved the black line up".
+     The bubbles (bubbles.js) are the scroll cue now. 1.75rem is the value if it ever comes back. */
+  .hero-stage{--stage:0vh;--peek:0rem;height:calc(100vh + var(--stage) - var(--peek));}
+  .hero{position:sticky;top:0;height:calc(100vh - var(--peek));min-height:0;
+        padding-bottom:0;grid-template-rows:1fr auto 1fr;}
+  .hero__name{grid-row:2;align-self:center;}
+
+  /* ---- the pin ----
+     ⛳⛳ THE BROWSER HOLDS THIS, NOT THE SCRIPT, AND THAT IS THE WHOLE POINT.
+     An earlier version left the pair in normal flow and had the script write
+     a translate every frame big enough to cancel the scroll. It was exact,
+     and it was a janky mess: the page scrolls on the compositor while the
+     script runs on the main thread, so every hitch showed as a slip the full
+     size of the scroll. position:fixed makes the lock free and perfect, and
+     leaves the script only the scale and the opacity — neither of which has
+     to be pixel-synced to anything.
+     ⛔ Never go back to compensating for scroll in JS.
+     Scaling this box also does the converging for free: the name sits above
+     its centre and the sentence below, so shrinking about that centre closes
+     the gap between them on its own. No per-element maths.
+     pointer-events:none because a fixed full-width box across the middle of
+     the screen would otherwise eat clicks meant for the menu; the one real
+     link inside it gets them back. */
+  html.pin-live .hero__name{
+    position:fixed;left:0;right:0;top:50%;
+    /* the script replaces both of these with the name's centre — see
+       measure() in index.html. This is only the no-script resting state. */
+    transform:translateY(-50%);
+    z-index:30;pointer-events:none;
+    will-change:transform,opacity;
+  }
+  html.pin-live .hero__sub a{pointer-events:auto;}
+}
+
+/* ---- the wordmark's ink ----
+   The canvas is the same size and place as the viewport and sits on the name's
+   own layer, so a shard passing in front of the sentence passes in front of it.
+   Hidden until burst.js has actually built its buffers; the <h1> holds the ink
+   until then, which is also the whole no-WebGL fallback.
+   ⛔ color:transparent, NOT visibility:hidden. The h1 is the page's only h1 —
+   it has to keep its box and its place in the accessibility tree. */
+.hero__burst{display:none;}
+html.burst-live .hero__burst{
+  display:block;position:fixed;inset:0;z-index:30;pointer-events:none;
+}
+html.burst-live .hero .wordmark{color:transparent;}
+/* the class is only ever added by the script, so no-JS keeps the pair in
+   normal flow and simply scrolls them away */
+@media (prefers-reduced-motion:reduce){
+  html.pin-live .hero__name{position:static;transform:none;will-change:auto;}
+}
+
+/* the name, broken over two lines at the foot of the first screen.
+   Each line only has to fit "MOYNIHAN", so the type runs large. */
+.hero__name{grid-row:2;align-self:end;display:flex;flex-direction:column;align-items:center;width:100%;}
+.wordmark{
+  position:relative;z-index:2;
+  font-weight:900;
+  font-stretch:112%;
+  font-size:8.15vw;
+  line-height:.86;
+  letter-spacing:-.038em;
+  text-transform:uppercase;
+  text-align:center;
+  user-select:none;
+  pointer-events:none;
+}
+.hero .wordmark{white-space:nowrap;}
+.hero .wordmark span{display:inline;}
+/* the sub-line is the first mutter: high-contrast serif under a
+   monument of grotesque. The joke reads like a museum plaque. */
+.hero__sub{
+  position:relative;z-index:3;align-self:center;
+  /* ⛳ 5 Oct: .55rem -> 2.2rem. His call — the line was sitting too close under
+     the wordmark. The liquid name has its own optical baseline (the pen's
+     terminals hang below the letters' feet), so measured space and perceived
+     space are not the same here; this is set by eye against the rendered ink,
+     not against the h1's box.
+     ⛳ 5 Oct, later: 2.2rem -> clamp(2.2rem,4vw,4.6rem). He asked if it should
+     sit further down; Fable's call was "yes, but only a little" — half the
+     letter height of clear air (~57px at 1440), any more and it reads as a
+     separate caption. In vw because the name is fitted to the width, so its
+     letter height is too. */
+  max-width:min(1400px,96vw);margin:clamp(2.2rem,4vw,4.6rem) auto 0;padding:0 var(--pad);
+  text-align:center;
+  font-family:var(--serif);font-weight:500;font-optical-sizing:auto;
+  /* down ~10% on his call, 10 Sep 20:04 */
+  /* ⛳ 5 Oct: down another ~9% on his call. balance is back on — the hard
+     break was removed (see index.html), so this line is one line at desk
+     width and balance only decides where it turns on a narrow screen. */
+  font-size:clamp(.88rem,1.6vw,1.4rem);line-height:1.34;letter-spacing:0;text-wrap:balance;
+}
+
+/* Deadpan link: the line reads straight, the joke is found not announced.
+   Ink text + soft hairline rule; the red arrives only on hover. */
+.hero__sub a,.about-hero h1 a{
+  color:var(--ink);border-bottom:2px solid rgba(22,21,17,.35);
+  text-decoration:none;transition:color .15s ease,border-color .15s ease;
+}
+.hero__sub a:focus-visible,.about-hero h1 a:focus-visible{
+  color:var(--red-deep);border-bottom-color:var(--red);
+}
+@media (hover:hover) and (pointer:fine){.hero__sub a:hover,.about-hero h1 a:hover{
+  color:var(--red-deep);border-bottom-color:var(--red);
+}}
+
+/* The glasses. A first screen of a name and a full stop says nothing about
+   a menu under it; an arrow says it and is dead. These are the novelty
+   glasses with the airbrushed eyes printed on the lenses, photographed and
+   cut out — and the print has no pupils, just two blank white holes. So the
+   pupils are ours: they sink, fall out of the bottom of the eyes and drop
+   down the page. The blank eyes left behind are the joke; the falling is
+   the instruction. */
+/* ⛳ PARKED, 10 Sep 21:46 — flat, exactly as it was. A 3D version was built
+   (perspective + rotateX, and a variant that followed the cursor) and he had
+   it taken back out: tilting this asset reads as a vertical squash, not as a
+   head. The reason is the picture, not the CSS — it is a flat product shot
+   taken dead-on, so there is no top of the frames and no arms going back for
+   a rotation to reveal. If it comes back, it needs the glasses re-shot from
+   above first; more CSS will not do it. */
+.specs{
+  position:absolute;left:50%;bottom:.72rem;transform:translateX(-50%);
+  z-index:3;display:block;
+  /* 7 Oct 8pm: 15% smaller, his call (was clamp(5.18rem,6.8vw,6.66rem)) */
+  width:clamp(4.4rem,5.78vw,5.66rem);
+}
+/* ⛔ 7 Oct 8:54pm: GLASSES OFF, his call ("remove the glasses"). Markup, eyes and fade code are kept;
+   delete this one line to bring them back. */
+.specs{display:none;}
+.specs img{display:block;width:100%;height:auto;}
+/* The pupils never leave the bottom of the blank — they are looking down the
+   page, and that is the whole job. Two elements: the span does the looking,
+   the i inside it does the blinking, because one element can only run one
+   transform. */
+/* The eye is a socket the shape of the printed blank, with the iris inside
+   it and clipped by it — so when the iris rolls down it is cut by the lower
+   lid exactly as a real eye is, and the white left above it is what says
+   "down". Three elements because one can only hold one transform: the socket
+   clips, the i does the looking, the b does the blinking. */
+.specs__eye{position:absolute;overflow:hidden;border-radius:50%;}
+.specs__eye--l{left:22.5%;top:45.3%;width:8.6%;height:15.6%;}
+.specs__eye--r{left:69.1%;top:45.6%;width:8.6%;height:15.3%;}
+.specs__eye i{
+  position:absolute;left:50%;top:41%;width:97.1%;aspect-ratio:1;
+  animation:specs-look 8.5s cubic-bezier(.45,0,.25,1) infinite;
+}
+.specs__eye b{
+  display:block;width:100%;height:100%;border-radius:50%;
+  background:radial-gradient(circle at 50% 44%,
+    #2b2320 0 28.8%, #74889a 31.6% 74%, #43535f 78% 100%);
+  animation:specs-blink 7.6s infinite both;
+}
+/* ⛔ IT IS A SCROLL-DOWN CHEVRON, SO IT LOOKS DOWN. NOTHING HERE LIFTS.
+   The old cycle spent a quarter of its length rolling UP to level and back,
+   and glanced a third of the socket's width left and right — for a third of
+   every round the one cue on the landing screen was pointing at nothing.
+   (14 Sep: "they are the creative version of a scroll down chevron".)
+   Every pose below is down. It holds dead-centre-down for well over half the
+   round; the rest is a small drift across, and one deliberate push LOWER —
+   the nod toward the menu that the old lift was stealing. The drift exists
+   only so it reads as alive rather than as a printed graphic.
+   ⛳ AND IT IS JUDGED AT LIFE SIZE. The glasses render about 100px wide, so
+   the iris is ~9px and the socket ~6px tall: a 10% nudge is under a pixel and
+   a "look further down" is pure clipping nobody can see. These moves are ~26%
+   because that is what actually registers at 9px. Every y is 0 — the iris is
+   already at the floor of the socket and the vertical is what carries the
+   whole cue, so nothing here touches it. The BLINK is what does the rest of
+   the aliveness; it reads fine at this size when a 1px drift does not. */
+@keyframes specs-look{
+  0%,50%   {transform:translate(-50%,0);}      /* down, centre — half the round */
+  56%,64%  {transform:translate(-74%,0);}      /* down and left */
+  70%,78%  {transform:translate(-26%,0);}      /* down and right */
+  84%,100% {transform:translate(-50%,0);}      /* and settle, down */
+}
+@keyframes specs-blink{
+  0%,93%,100%{transform:scaleY(1);}
+  95.4%      {transform:scaleY(.08);}
+  97.8%      {transform:scaleY(1);}
+}
+}
+.specs:hover img,.specs:focus-visible img{filter:contrast(1.06);}
+@media (prefers-reduced-motion:reduce){
+  .specs__eye i{animation:none;transform:translate(-50%,0);}
+  .specs__eye b{animation:none;}
+}
+
+/* --- the trail: the objects ---
+   At rest (and for touch / reduced-motion / no-JS): a static row.
+   With a fine pointer and motion allowed, movement deals them one at a
+   time — each cut out of its background, so they overlap as objects on
+   the page rather than as a stack of framed pictures. Nodes are pooled
+   and recycled; a long waggle can never grow the DOM. */
+/* The trail keeps clear of the interface by not dealing there — see the
+   pointer handler. Nothing here needs masking. */
+/* The clip that used to sit on .hero lives here now. .trail is inset:0
+   against .hero, so it covers exactly the same rectangle and the cards are
+   held in as they always were — but the name and the sentence are no longer
+   inside it, which is the whole point. See the note in .hero. */
+.trail{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
+/* ⛔ 5 Oct 7:25pm: the trail is off, his call — the resting collage included,
+   so no-JS and touch never show it either. See TRAIL_ON in index.html. */
+.trail{display:none;}
+.trail__card{
+  position:absolute;left:0;top:0;
+  width:var(--card,clamp(6.4rem,12.5vw,10rem));
+  height:var(--card,clamp(6.4rem,12.5vw,10rem));
+  will-change:transform;
+}
+/* the resting row clears the floating nav, and is measured from the top of
+   the hero, never from the name */
+.trail__card--rest{top:calc(var(--shelf-pad) + var(--nav-h));}
+/* fine pointer, motion allowed: nothing at rest — movement deals them.
+   display:none also means these images are never fetched. */
+html.trail-live .trail__card--rest{display:none;}
+/* minted cards: settle in, then get refiled. The two directions carry their
+   own timing — a card arrives over .30s but leaves in .22s, because the
+   dealing is the point and the clearing shouldn't be watched. Both were
+   longer; they came down with DWELL so the trail stops feeling laggy. */
+/* ⛳ 20% DOWN from clamp(9rem,17vw,15rem) — his call, 14 Sep. Every number in
+   the clamp is scaled, not just the middle one, or the objects change size
+   relative to each other as the window moves. */
+/* ⛳ 5 Oct: 40% DOWN again, from clamp(7.2rem,13.6vw,12rem) — his call, "much
+   smaller". THIS is the rule that sizes the cursor's objects; .hero's --card
+   only sizes the resting row and the shelf. Same rule as above: all three
+   numbers scaled. The no-deal band reads offsetHeight, so it follows. */
+.trail__card--spawn{
+  width:clamp(4.32rem,8.16vw,7.2rem);height:clamp(4.32rem,8.16vw,7.2rem);
+  opacity:0;
+  transition:opacity .22s ease,transform .32s cubic-bezier(.2,.8,.3,1);
+}
+.trail__card--spawn.is-in{
+  opacity:1;
+  transition:opacity .30s ease,transform .32s cubic-bezier(.2,.8,.3,1);
+}
+.trail__card img{width:100%;height:100%;object-fit:contain;}
+
+/* phones: the cursor collage can't work on touch and collides with
+   the type at this size, so retire it and let the name breathe.
+
+   The nav has to come back down to earth here. On a big screen it floats over
+   the hero (position:absolute) so the trail has the whole viewport to play in
+   and nothing is clipped along a nav edge. On a phone the trail is off, so
+   floating buys nothing — and it cost everything: the hero collapses to the
+   height of the name, the nav stacks to two rows (194px measured at 390px
+   wide), and the two were drawn on top of each other. The name, the sentence
+   and every nav link were in the same 200px of screen. */
+@media (max-width:768px){
+  .nav--home{position:static;background:var(--bone);border-bottom:var(--hair);}
+  /* ⛳ padding-bottom carries the glasses. .specs is absolute at bottom:.72rem
+     and is ~2rem tall, so at 2.2rem of padding the sentence ran straight into
+     it — measured 9px of overlap at 393px, the underline crossing the lens. */
+  .hero{min-height:auto;grid-template-rows:auto;padding-bottom:1.6rem;
+        padding-top:clamp(1.6rem,5vh,2.6rem);}
+  .hero__name{grid-row:1;}
+  .hero .trail{display:none;}
+  .hero .wordmark{font-size:14vw;line-height:.82;padding:0 2vw;}
+  .hero__sub{font-size:1.08rem;line-height:1.42;max-width:32ch;margin-top:1rem;}
+  /* ⛳ 21 Sep: NO GLASSES ON A PHONE. They are a scroll cue, and a phone
+     already tells you the page continues — the thumb is on the scroll. At
+     this width they landed on top of the sentence (see the padding note
+     above) and the eyes are ~9px, below the size the animation was tuned
+     for. The padding that was reserved for them goes back too. */
+  .specs{display:none;}
+}
+
+/* ---------- homepage menu ---------- */
+/* ⛳ THE MENU RIDES OVER THE BURST CANVAS.
+   The canvas is position:fixed across the whole viewport at z-index 30, so
+   fragments were painting on top of the menu rows as they scrolled up. The
+   menu was transparent and unpositioned, which put it in the in-flow layer —
+   underneath every positioned thing on the page. A bone ground and a z-index
+   one above the canvas means the pieces simply disappear behind the menu as
+   it rises, which is what should have been happening all along.
+   The ground is --bone, the same colour the body already is, so nothing about
+   the page looks different: the only thing that changes is what it covers.
+   (The nav is z-index 40 and was never at risk.) */
+.menu{border-bottom:var(--hair);position:relative;z-index:31;background:var(--bone);}
+.item{
+  display:grid;
+  /* ⛳ 4 Oct: NO NUMBER COLUMN. The row numbers are hidden (see .item__no), and
+     a hidden column still reserves its 5.5rem — which is the empty indent that
+     read as a broken row on phones in September. Hide the number and collapse
+     the column together, always. */
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;gap:1rem;
+  padding:clamp(1.4rem,3.5vh,2.4rem) var(--pad);
+  border-bottom:var(--hair);
+  text-decoration:none;
+  position:relative;
+  transition:background .12s;
+}
+.item:last-child{border-bottom:none;}
+/* ⛔ HIDDEN, NEVER DELETED FROM THE MARKUP. His call, 4 Oct — the numbers are
+   off the design. But the hover dealer keys each row's deck off this span's
+   text (`DECKS[noEl.textContent.trim()]` in index.html), so removing the
+   element leaves every row dealing nothing. It stays in the DOM, unseen. */
+.item__no{display:none;}
+/* ⛳ 4 Oct: SOLID. His call, and it overrides the note that stood here.
+   The old reasoning was that hollow kept navigation in a different register
+   from his name directly above it, which was true while the name was static
+   type in the same face. The name is becoming the liquid wordmark, so the two
+   no longer rhyme and the menu does not need to hold back from it.
+   ⛔ Do not "restore" the outline. It was replaced deliberately. */
+.item__title{
+  color:var(--ink);-webkit-text-stroke:0;
+  font-weight:900;font-stretch:125%;
+  font-size:clamp(1.8rem,6vw,4.6rem);
+  line-height:.95;letter-spacing:-.02em;text-transform:uppercase;
+}
+/* The meta wraps rather than holding a single wide line, and drops under the
+   title before the two can meet. A long lowercase title already ran into its
+   own meta below 1100px — hidden by the row's overflow clip — and widening the
+   titles would have pushed that up into common laptop widths. */
+.item__meta{justify-self:end;text-align:right;max-width:14rem;text-wrap:balance;   /* 17 Oct: 12 → 14rem + balance, so the new About line sits on 3 lines with no orphan */ 
+  /* see the hover rule below: this reserves the bold line's width */
+  font-synthesis:none;}
+@media (max-width:1250px){
+  .item{grid-template-columns:minmax(0,1fr);}
+  .item__meta{grid-column:2;justify-self:start;text-align:left;max-width:none;margin-top:.35rem;}
+}
+/* ⛳ 21 Sep: NO ROW NUMBERS ON A PHONE. 01-04 is a filing conceit that reads
+   at desk width; on a phone it spent 5.5rem of a ~360px line — a fifth of the
+   screen — indenting four titles that are the whole point of the row. The
+   column goes with it, so the titles start at the page edge like everything
+   else. */
+/* ⛔ display:none, NOT removed from the markup. The hover-card decks in
+   index.html are keyed on this span's text — `DECKS[noEl.textContent.trim()]`
+   — so deleting the 01-04 spans silently empties every row's deck on desktop.
+   Hidden is safe; gone is not. */
+@media (max-width:768px){
+  .item__no{display:none;}
+  .item{grid-template-columns:minmax(0,1fr);}
+  .item__meta{grid-column:1;}
+  /* ⛳ 21 Sep: THE STROKE HAS TO SCALE WITH THE TYPE OR THE WORDS GO SOLID.
+     font-size is clamp(1.8rem,6vw,4.6rem), so 6vw stops growing below 480px
+     and the type sits at 28.8px — but the stroke stayed pinned at 2.5px.
+     That is 8.7% of the letter height against 3.4% at desktop max: at 900
+     weight and 125% stretch the counters close and ADVERTISING reads as a
+     black bar. In em it holds the desktop ratio at every width and cannot
+     drift again. */
+  /* (the stroke is gone — titles are solid; left as a marker of where
+     the per-width stroke tuning used to live) */
+}
+/* Hover: the row fills with that section's own work, cut fast, and the type
+   knocks out of it in bone.
+   ⛔ THERE IS NO FULL-BLEED PATH ANY MORE. Until 14 Sep, Advertising flooded
+   the row with one still at a time while another row dealt small cards, and
+   they were two separate scripts with two separate sets of bugs. "the hover
+   treatment should probably be consistent on all menu items" — so every row
+   now deals cards, and the ~120 lines of background-image cycling, its scrim
+   attribute and its preload-lifetime workaround all went with it. Do not
+   reintroduce a second mechanism for one row. */
+.item{overflow:hidden;}
+.item__no,.item__title,.item__meta{position:relative;z-index:2;}
+
+/* ⛔ 16 SEPT: EVERY :hover IN THE MENU IS GATED ON A REAL POINTER.
+   iOS applies :hover to a tapped element and LEAVES IT THERE, so on a phone
+   one tap flipped a row to the ink ground and the knocked-out type and it
+   stayed that way — "the mobile site is a broken mess", and it was. The
+   :focus-visible halves stay ungated: a keyboard needs them, a finger never
+   fires them. Any new hover state in this block goes inside the same query. */
+.item:not(.item--soon):focus-visible .item__no,
+.item:not(.item--soon):focus-visible .item__title{
+  color:var(--bone);-webkit-text-stroke:0;
+}
+@media (hover:hover) and (pointer:fine){
+.item:not(.item--soon):hover .item__no,.item:not(.item--soon):hover .item__title{
+  color:var(--bone);-webkit-text-stroke:0;
+}
+}
+/* ⛳ THE META GOES BOLD ON HOVER, and it is a legibility fix not a flourish.
+   It is 11.5px mono with .16em of tracking, and once the row floods with
+   photographs it is small light type over busy mid-tones — "its a bit hard to
+   read", and it was. 700 is the only other weight Space Mono is loaded at.
+   ⛔ WEIGHT IS ALSO RESERVED AT REST, in .item__meta, or the row RESIZES under
+   the pointer: bolder glyphs are wider, the line rewraps inside its 12rem
+   column, and the whole row jumps a line taller the moment you touch it. The
+   resting state pays for the bold state's width so nothing moves. */
+.item:not(.item--soon):focus-visible .item__meta{color:var(--bone);font-weight:700;}
+@media (hover:hover) and (pointer:fine){
+.item:not(.item--soon):hover .item__meta{color:var(--bone);font-weight:700;}
+}
+
+/* THE CARD DECK. A small or light source picture blown full bleed smears, and
+   bone type vanishes on white paper. So a row layers several pictures edge to
+   edge at more than the row height (still a downscale, so they stay sharp),
+   re-dealt on every flicker frame, under an ink wash. The wash is what lets
+   the type knock out in bone like every other section. */
+.item--cards:focus-visible{background:var(--ink);}
+@media (hover:hover) and (pointer:fine){.item--cards:hover{background:var(--ink);}}
+.item__cards{
+  position:absolute;inset:0;opacity:0;pointer-events:none;
+  z-index:0;isolation:isolate;            /* keeps the cards beneath the type */
+  transition:opacity .12s ease;
+}
+.item--cards:focus-visible .item__cards{opacity:1;}
+@media (hover:hover) and (pointer:fine){.item--cards:hover .item__cards{opacity:1;}}
+/* ⛳ THE CARD'S SHAPE IS THE ROW'S TO SET, and it matters more than it looks.
+   A square crop is right for a square source — a sheet of paper, a record
+   sleeve — and wrong for anything photographic: crop an award-winning film
+   still to a square and you get the middle of somebody's face with the ad
+   removed. Each row declares its own aspect, height and overlap below; the
+   default is the square one. */
+.item__cards .card{
+  position:absolute;top:50%;margin-left:var(--card-ml,-9%);
+  height:var(--card-h,150%);width:auto;aspect-ratio:var(--card-ar,1/1);
+  object-fit:cover;
+  border:2px solid var(--bone);
+  box-shadow:0 3px 10px rgba(0,0,0,.35);
+}
+.item__cards::after{
+  content:"";position:absolute;inset:0;z-index:99;
+  background:rgba(22,21,17,.62);
+}
+/* ---- the three shapes ----
+   ⛳ THE HEIGHT FALLS AS THE CARD GETS WIDER, and it has to. A 16:9 card at
+   the square card's 150% is nearly 400px across, so a row of them is a smear with no
+   single picture in it. Dropping the height brings the width back to about a
+   playing card held landscape, and the row reads as a spread you could pick
+   one out of.
+   ⛳ AND PHOTOGRAPHY GETS A LIGHTER WASH. .62 was set for cards of white
+   paper. Campaign stills and award winners run from dark film
+   frames to white case-study boards, and at .62 the dark half went to mud.
+   .50 still gives the bone type something to knock out of. */
+/* ⛳ AND THE SQUARE ONE HAS TO BE TALLER TO LOOK THE SAME SIZE. Measured on
+   the live page, every card was landing at the same HEIGHT — 229, 229, 236 —
+   but a square card is only as wide as it is tall, so the square one came out
+   236px across against 319 and 381 for the other two, and with eleven of them
+   sharing the row you saw a 145px sliver of each against 200 and 229. Same
+   height, much less picture — the square row's hover images read smaller than
+   the other two, and they were. Height 196% puts the square card at
+   300x300 — which is also exactly 1:1 with the source, so it is the largest
+   it can be drawn without softening — and the count drops to eight so each
+   one gets the same room as the rows either side of it. */
+/* ⛔ THE BASE ROW COMES FIRST AND THE MODIFIERS AFTER, or the square default
+   below re-overrides them: .item--cards and .item--wide are the same
+   specificity, so whichever is written last wins, and the wide row would
+   silently take the square height. */
+.item--cards{--card-ar:1/1;  --card-h:196%;--card-ml:-9%;}  /* square (base)  */
+.item--wide {--card-ar:16/9; --card-h:110%;--card-ml:-8%;}  /* adnauseum.ai  */
+.item--photo{--card-ar:7/5;  --card-h:130%;--card-ml:-8%;}  /* advertising   */
+/* ⛔ 15 SEPT, SECOND PASS: MUSIC IS FULL BLEED AND STAYS FULL BLEED.
+   It was briefly dropped to 86% so the whole square sat inside the row and
+   read as a record in a rack — my call, not his, and he threw it straight
+   back: "the toad hover looks fucking atrocious ... it used to be full bleed
+   and you could see the toads eyes and the bubbles went on top of the word
+   MUSIC". He is right. The band the tall card shows is the best part of the
+   painting — eyes, bubbles, the top of the beer — and it floods the row edge
+   to edge like every other hover instead of sitting in it politely.
+   ⛔ DO NOT SHRINK THIS CARD BACK INSIDE THE ROW. Same shape as the square
+   base; only the wash below is the row's own. */
+.item--sleeve{--card-ar:1/1; --card-h:196%;--card-ml:-9%;}
+/* the painting is already dark, so it takes a lighter wash than white paper */
+.item--sleeve .item__cards::after{background:rgba(22,21,17,.46);}
+.item--wide .item__cards::after,
+.item--photo .item__cards::after{background:rgba(22,21,17,.50);}
+
+/* The Archive: the row is on the page but it is not a door yet. The number
+   and the title hold their place at a whisper, and the only thing at full
+   strength is the notice sitting across them. */
+.item--soon{cursor:default;}
+.item--soon .item__no,.item--soon .item__title{opacity:.22;}
+/* ⛳ 15 Sep: the COMING SOON row deals cards too, and the ink ground the cards
+   sit on would have swallowed it. The row is faded to .22 on purpose and the
+   .item:not(.item--soon) guard above deliberately withholds the bone knock-out
+   that every open row gets on hover — so on ink it was 22% ink on ink, gone.
+   Switching only the COLOUR to bone keeps both truths: still faded, still
+   clearly not a door, but legible over its own artwork. */
+@media (hover:hover) and (pointer:fine){
+.item--soon.item--cards:hover .item__no,
+.item--soon.item--cards:hover .item__title,
+.item--soon.item--cards:hover .item__meta{color:var(--bone);}
+}
+/* ⛔ AND THE STAMP IS LEFT ALONE. It is ink type on a bone plate, so it is
+   already legible on the cards and needs nothing; colouring its text bone made
+   it bone on bone — a solid white box in the middle of the row. */
+.item__soon{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  z-index:3;white-space:nowrap;
+  font-size:.74rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink);
+  border:var(--hair);padding:.5rem .95rem;background:var(--bone);
+}
+
+/* ---------- home sections (music) ---------- */
+.section{border-bottom:var(--hair);padding:clamp(2.5rem,7vh,5rem) var(--pad);}
+.section__head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;}
+.section h2{
+  font-weight:900;font-stretch:108%;text-transform:uppercase;
+  font-size:clamp(2rem,7vw,5.2rem);line-height:.92;letter-spacing:-.02em;
+}
+
+/* --- Music: the two monikers get nameplates --- */
+.duet{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:clamp(.8rem,2vw,1.6rem);
+  margin-bottom:clamp(1.8rem,4vh,3rem);
+}
+.alias-plate{
+  border:var(--hair);background:var(--paper);
+  padding:clamp(1rem,2.4vw,1.8rem);
+  display:flex;flex-direction:column;gap:.55rem;align-items:flex-start;
+}
+.alias-plate__name{
+  font-weight:900;font-stretch:108%;text-transform:uppercase;
+  font-size:clamp(1.9rem,4.6vw,3.8rem);line-height:.95;letter-spacing:-.02em;
+}
+.alias-plate--stroke .alias-plate__name{
+  color:transparent;-webkit-text-stroke:1.5px var(--ink);
+}
+.music{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1.5rem,4vw,4rem);align-items:start;}
+.music__copy > p{
+  font-family:var(--serif);font-optical-sizing:auto;
+  max-width:33em;margin-bottom:1.4rem;
+  font-size:clamp(1.1rem,1.65vw,1.3rem);line-height:1.5;
+}
+.music__copy .alias{font-weight:700;font-style:italic;}
+.spot{border:var(--hair);background:var(--paper);margin-bottom:1.4rem;}
+.spot__load{
+  display:flex;align-items:center;gap:1rem;width:100%;
+  padding:1.2rem 1.4rem;cursor:pointer;
+  background:var(--paper);border:none;text-align:left;
+  font-family:var(--mono);font-size:.78rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.14em;color:var(--ink);
+}
+@media (hover:hover) and (pointer:fine){.spot__load:hover{background:var(--ink);color:var(--bone);}}
+.spot__load .aside{font-weight:400;letter-spacing:.1em;margin-left:auto;color:var(--ink-soft);}
+@media (hover:hover) and (pointer:fine){.spot__load:hover .aside{color:var(--bone-deep);}}
+.spot__load .play{
+  flex:none;width:2.6rem;height:2.6rem;border-radius:50%;
+  background:var(--red);color:var(--bone);
+  display:grid;place-items:center;font-size:1rem;
+}
+.spot iframe{width:100%;height:152px;border:0;display:block;}
+.spot__fallback{padding:.8rem 1.4rem;border-top:var(--hair);}
+.music__art{border:var(--hair);background:var(--paper);max-width:26rem;margin-left:auto;}
+.music__art img{width:100%;height:auto;}
+.music__art figcaption{padding:.6rem .8rem;border-top:var(--hair);}
+
+/* ---------- footer ---------- */
+.footer{padding:2.2rem var(--pad) 2.8rem;display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;}
+.footer a{color:inherit;}
+.footer a:hover{color:var(--red-deep);}
+
+/* ============================================================
+   THE ARCHIVE (work.html)
+   ============================================================ */
+/* ⛳ 10 Oct: "obnoxiously large" — was clamp(2.2rem,11vw,11rem) with a line of
+   meta and a hairline under it. Now the About heading's size, no meta, no rule. */
+.arch-head{padding:clamp(2rem,6vh,4rem) var(--pad) 0;position:relative;}
+.arch-head h1{
+  font-weight:900;font-stretch:106%;text-transform:uppercase;
+  font-size:clamp(1.9rem,5.2vw,4.4rem);line-height:1.02;letter-spacing:-.02em;
+  margin:0 0 clamp(1.2rem,3vh,2rem) -.02em;
+}
+.arch-head + .section,.arch-head ~ .ledger{padding-top:0;}
+/* no rule between the title and its line of meta — the section already ends
+   on one, and stacking two put three hairlines within a few centimetres */
+.arch-head__meta{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding:.6rem 0 1rem;}
+.arch-head .stamp{position:absolute;right:clamp(1rem,6vw,5rem);top:clamp(1.4rem,5vh,3rem);transform:rotate(6deg);}
+
+/* file zero — Maurice is Selling Out */
+.filezero{display:block;border-bottom:var(--hair);text-decoration:none;position:relative;}
+.filezero__media{position:relative;border-bottom:var(--hair);background:var(--paper);}
+.filezero__media img,.filezero__media video{width:100%;aspect-ratio:16/9;object-fit:cover;max-height:78svh;}
+.filezero__plate{
+  display:grid;grid-template-columns:1fr auto;gap:1.2rem;align-items:baseline;
+  padding:1.2rem var(--pad);
+}
+.filezero__title{
+  font-weight:900;font-stretch:108%;text-transform:uppercase;
+  font-size:clamp(1.5rem,4.6vw,3.4rem);line-height:.95;letter-spacing:-.02em;
+}
+@media (hover:hover) and (pointer:fine){.filezero:hover{background:var(--ink);color:var(--bone);}
+.filezero:hover .m--soft{color:var(--bone-deep);}}
+.filezero .stamp{position:absolute;right:clamp(1rem,5vw,4rem);top:clamp(1rem,4vw,3rem);transform:rotate(8deg);font-size:1rem;background:rgba(239,237,230,.85);}
+
+/* the ledger grid */
+/* No rules between the work — the gap does the separating. */
+.ledger{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(1.6rem,3.4vw,3.2rem) clamp(1.2rem,2.6vw,2.4rem);
+  padding:clamp(1.4rem,3vw,2.6rem) var(--pad) clamp(3rem,7vh,5rem);
+}
+.file{
+  display:block;text-decoration:none;
+  padding:0;
+  border:var(--hair);background:var(--paper);
+  position:relative;
+  transition:background .12s,color .12s;
+}
+
+/* the card is the frame — the image sits flush inside it, so there is one
+   outline rather than a box within a box */
+.file__media{position:relative;background:var(--paper);overflow:hidden;border-bottom:var(--hair);}
+/* the direct child only — the award marks live in this box too now, and were
+   being forced into the card image's 7:5 and cropped to it */
+.file__media > img,.file__media > video{
+  width:100%;aspect-ratio:7/5;object-fit:cover;transition:transform .3s ease;
+}
+/* a straight zoom — the old half-degree tilt was a tic, not a decision */
+@media (hover:hover) and (pointer:fine){.file:hover .file__media > img,.file:hover .file__media > video{transform:scale(1.045);}}
+.file__plate{display:block;padding:clamp(.9rem,1.8vw,1.4rem);}
+.file__client{display:block;font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.18em;color:var(--ink-soft);}
+/* .15rem was set when the client line was nothing but small mono type. The
+   award marks are twice its height, so the title was ending up 2px under
+   them — which is what made the row look cluttered rather than the marks
+   themselves. */
+.file__title{
+  display:block;margin-top:.55rem;
+  font-weight:900;font-stretch:106%;text-transform:uppercase;
+  font-size:clamp(1.25rem,2.6vw,2rem);line-height:1;letter-spacing:-.015em;
+}
+.file__notes{display:block;margin-top:.4rem;}
+
+/* Awards on an archive entry: the show's logo with a count where a logo
+   exists, the show's name where there isn't one. Five of the fourteen
+   shows have artwork; the rest read as words in the same row. */
+/* The marks sit under the caption, where a mark always reads. They were the
+   loudest credential on the card set at 1.5rem and 85% — they are now half
+   again as tall, at full strength, with room to breathe. Floating them over
+   the picture was tried and abandoned: fifteen photographs, some bright and
+   some dark, and every fix for the bright ones was a box or a shadow. */
+.file__gongs{
+  display:flex;align-items:center;flex-wrap:wrap;
+  gap:.5rem 1.1rem;margin-top:1rem;
+}
+.gong{display:inline-flex;align-items:center;gap:.4rem;}
+.gong img{height:2.3rem;width:auto;display:block;opacity:1;}
+@media (hover:hover) and (pointer:fine){.file:hover .gong img{filter:invert(1);}}   /* black artwork, on an ink fill */
+.gong__n{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--ink-soft);}
+.gong--word{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
+
+/* The award marks live in the copy box, on the client line, which was half
+   empty. Two reasons they are not on the photograph any more: knocked out
+   white they vanished on a light image, and measuring the top-right corner of
+   every card showed it running the full 0..255 — so no single colour, and no
+   per-card colour either, can be legible across one picture. On bone they are
+   simply ink, like everything else here, and the photograph is left alone.
+
+   Sizing is max-width AND max-height so a show whose logo is a wordmark
+   cannot run away with the row; a flat height is what let the Internationalist
+   come out seven times wider than a lion. */
+/* a long client name ("Great Northern Brewing Co.") runs right up to the
+   marks, so the two columns are held well apart */
+.file__plate{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:1.9rem;}
+.file__client{grid-column:1;grid-row:1;align-self:center;}
+.file__title,.file__notes{grid-column:1 / -1;}
+.file__gongs--plate{
+  grid-column:2;grid-row:1;justify-self:end;align-self:center;margin:-.75rem 0;
+  /* 18 Oct, his catch: "why is the subheading copy misaligned vertically?" — the marks are taller than the client
+     line, so on an awarded card row 1 grew and pushed the title and notes ~5px lower than the card beside it. The
+     negative margin keeps the marks centred on the client line without adding to its height. (Phones reset it below.) */
+  display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:.3rem .62rem;
+}
+.file__gongs--plate .gong{flex-direction:row;align-items:center;gap:.15rem;}
+/* size comes from the generated per-mark rules at the foot of this file, which
+   equalise ink rather than bounding box; nothing is set here beyond spacing */
+.file__gongs--plate .gong img{display:block;}
+.file__gongs--plate .gong__n{font-size:.5rem;}
+/* the card floods with ink on hover, so black artwork has to knock out */
+@media (hover:hover) and (pointer:fine){.file:hover .file__gongs--plate .gong img{filter:invert(1);}
+.file:hover .file__gongs--plate .gong__n{color:var(--bone-deep);}}
+/* on a phone the client line is too narrow to share, so they take their own */
+@media (max-width:700px){
+  .file__gongs--plate{grid-column:1 / -1;grid-row:auto;justify-self:start;
+    justify-content:flex-start;margin:.6rem 0 0;}
+}
+
+/* Hover fills the card with ink and knocks the type out, which is the same
+   move the homepage menu rows make. The award marks are black artwork on
+   transparent, so they have to be inverted or they vanish into the fill. */
+/* ⛳ 21 Sep: GATED. This is the same trap the menu rows were pulled out of
+   on 16 Sept and it was left in here — iOS parks :hover on a tapped element,
+   so one tap on the advertising grid flipped a card to the ink ground and
+   knocked-out type and left it there. 94 cards on that page. */
+@media (hover:hover) and (pointer:fine){.file:hover{background:var(--ink);color:var(--bone);}
+/* the client line carries its own ink-soft grey, which the rule below used to
+   miss entirely — dark grey on near-black, so the brand name disappeared */
+.file:hover .m,.file:hover .m--soft,.file:hover .gong__n,.file:hover .gong--word{color:var(--bone-deep);}
+.file:hover .file__client{color:rgba(239,237,230,.78);}
+.file:hover .file__media{border-bottom-color:var(--ink);}}
+
+/* ============================================================
+   CASE FILE
+   ============================================================ */
+/* The campaign's own title is already burned into the opening image, so the
+   page does not set it twice. The h1 stays in the markup — it is what a
+   search engine and a screen reader read the page as — but it is not drawn. */
+/* The "<- Advertising" row above the title is gone. The nav carries a live
+   Advertising link on every case page and the foot of the page carries
+   another, so the row was a third route back that cost a ruled band across
+   the top of the screen. The title stays as a hidden h1 — it is what a search
+   engine and a screen reader read the page as, and print un-hides it. */
+/* read, not seen */
+.vh,.case-title{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;
+  overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0;
+}
+.case-meta{display:flex;gap:2.4rem;row-gap:.4rem;flex-wrap:wrap;padding:1rem var(--pad);border-bottom:var(--hair);}
+.case-meta .case-credit{color:var(--ink);}
+.case-meta .case-file-no{margin-left:auto;}
+
+.case{max-width:min(1280px,100%);margin:0 auto;padding:0 var(--pad);}
+.case > *{margin-block:clamp(1.6rem,4vh,3rem);}
+/* The opening frame is the page's header image: it breaks out of the measure
+   and runs edge to edge. body has overflow-x:clip so the 100vw cannot start a
+   sideways scroll on platforms whose scrollbars take up room. */
+.case > figure:first-child,.case > .film:first-child,.case > .loop:first-child{
+  margin-inline:calc(50% - 50vw);width:100vw;max-width:100vw;
+  margin-block-start:0;border:0;
+}
+/* The frames used to be outlined one and all, which on a page that is mostly
+   photographs read as a cage. The paper behind them does the work instead. */
+.case figure{background:var(--paper);}
+/* The six award strips are artwork on a plate, not photographs. The white
+   figure behind a photograph is deliberate — it is the paper the picture sits
+   on — but behind a row of logos it drew a white band across a bone page, with
+   the strip's own lighter plate showing inside it as a second bar. The plates
+   in the files are repainted to bone; these figures drop the paper so the marks
+   sit on the page itself. */
+.case figure:has(img[src*="e8d058d6"]),
+.case figure:has(img[src*="5c6b57af"]),
+.case figure:has(img[src*="ee710896"]),
+.case figure:has(img[src*="63a5c769"]),
+.case figure:has(img[src*="b405c2bf"]),
+.case figure:has(img[src*="3d7d2f3e"]),
+/* 20 Oct: Selling Out's Buy Now button sat on the same white band, left-aligned. Its plate is
+   repainted to bone too (original kept in originals-unused/), so it drops the paper and centres. */
+.case figure:has(img[src*="24bd2f09"]){background:transparent;text-align:center;}
+.case figure:has(img[src*="24bd2f09"]) img{margin-inline:auto;}
+/* and they are drawn at their own size rather than stretched to the column.
+   The files were 1920 wide with the logos adrift in the middle — Kmart's were
+   313px of ink in 1920 — so width:100% blew a small cluster up three times and
+   softened it. Cropped to the artwork, 1:1 is both bigger and sharp. */
+.case figure:has(img[src*="e8d058d6"]) img,
+.case figure:has(img[src*="5c6b57af"]) img,
+.case figure:has(img[src*="ee710896"]) img,
+.case figure:has(img[src*="63a5c769"]) img,
+.case figure:has(img[src*="b405c2bf"]) img,
+.case figure:has(img[src*="3d7d2f3e"]) img{width:auto;max-width:100%;display:inline-block;}
+/* 20 Oct: the three AWARD strips (McDonald's, Intel, Kmart) are 160px files and at 1:1 the marks
+   read too big — his call. Capped at 72%. max-height keeps the shape as max-width squeezes on a phone. */
+.case figure:has(img[src*="e8d058d6"]) img,
+.case figure:has(img[src*="ee710896"]) img,
+.case figure:has(img[src*="b405c2bf"]) img{max-height:115px;}
+.case figure img{width:100%;height:auto;}
+.case figcaption{padding:.55rem .8rem;border-top:var(--hair);}
+/* exhibit label filed INSIDE the frame, like a specimen tag taped to
+   the photograph — one treatment, one place, every time. A solid bone
+   chip stays legible over any photography (no text-over-image gamble),
+   and the caption remains real text for screen readers. The generator
+   only applies it to frames tall enough not to be obscured by it;
+   panoramic strips, films and loops keep the hairline bar below. */
+.fig--tag{position:relative;}
+.fig--tag figcaption{
+  position:absolute;left:50%;bottom:clamp(.55rem,2.4%,1.1rem);
+  transform:translateX(-50%) rotate(-1.2deg);
+  background:var(--bone);color:var(--ink);
+  border:1.5px solid var(--ink);border-top:1.5px solid var(--ink);
+  padding:.3em .8em .24em;
+  max-width:calc(100% - 2rem);text-align:center;
+  box-shadow:0 2px 5px rgba(20,21,17,.22);
+}
+.case .lede{
+  font-family:var(--serif);font-optical-sizing:auto;
+  font-weight:500;font-size:clamp(1.65rem,3.6vw,2.7rem);
+  line-height:1.18;letter-spacing:0;max-width:24em;
+}
+.case p.body{
+  font-family:var(--serif);font-optical-sizing:auto;
+  max-width:38em;font-size:clamp(1.1rem,1.65vw,1.3rem);line-height:1.5;
+}
+/* ⛳ 20 Oct: groups of pictures are JUSTIFIED ROWS. They were a grid of equal cells, and a grid
+   of equal cells holding portraits, 4:3s and 16:9s stretched every cell to its tallest neighbour,
+   so the white paper behind each short picture showed as a dead block under it (McDonald's had
+   seven). Now each picture grows in proportion to its own shape (--ar = w/h, written by the
+   generator), so every picture in a row comes out the same height, edge to edge, uncropped.
+   --rh is the height a row aims for; a row is never shorter than it, nor more than twice it. */
+.case .duo,.case .set{
+  --rh:15rem;
+  display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(.6rem,1.4vw,1.1rem);
+  margin-block:clamp(1.6rem,4vh,3rem);
+}
+.case .duo figure,.case .set figure{
+  margin:0;background:transparent;
+  flex:var(--ar,1.5) 1 calc(var(--ar,1.5) * var(--rh));
+  /* a row grows to fill the width, but never past twice its aim — otherwise a picture left
+     alone on the last row blew up to the full width (a portrait went 1,264px tall). Every
+     picture in a row hits the cap together, so they stay level; the row then centres. */
+  max-width:calc(var(--ar,1.5) * var(--rh) * 2);
+}
+.case .duo figure img,.case .set figure img{height:100%;object-fit:cover;display:block;}
+/* Episode grids (episode_grids in the generator): a run of short titled films, side by side, the title
+   under each. Tall films fill their cell; the empty caption bar under each film is dropped in here. */
+.case .eps{
+  --epw:12.5rem;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(min(var(--epw),100%),1fr));
+  gap:clamp(1.2rem,2.4vw,2rem) clamp(.6rem,1.4vw,1.1rem);align-items:start;
+}
+.case .eps--wide{--epw:26rem;}
+.case .ep figure{margin:0;}
+.case .ep .film--tall{max-width:none;}
+.case .ep figcaption:empty{display:none;}
+.case .ep__t{
+  font-family:var(--serif);font-optical-sizing:auto;font-weight:500;
+  font-size:clamp(1rem,1.3vw,1.15rem);line-height:1.25;margin:.55rem 0 0;
+}
+@media (max-width:640px){ .case .eps{--epw:9rem;} .case .eps--wide{--epw:26rem;} }
+/* a row (SET_ROWS or balanced_rows in the generator) never wraps: it shrinks as one, so a phone gets the
+   same three rows smaller rather than a picture stranded on a line of its own. Consecutive rows sit
+   a gap apart, not a whole section apart. */
+.case .set--row{flex-wrap:nowrap;}
+.case .set--row + .set--row{margin-top:calc(clamp(.6rem,1.4vw,1.1rem) - clamp(1.6rem,4vh,3rem));}
+.case .embed{background:var(--paper);}
+.case .embed iframe{display:block;width:100%;border:0;}
+.case .film iframe{display:block;width:100%;aspect-ratio:16/9;border:0;}
+/* 20 Oct: a film sits straight on the page. Its figure used to be paper, then ink — and either way a
+   pixel of it showed down the sides of a playing video (Chrome composites video on its own layer at
+   fractional sizes), and the empty caption strip drew a hairline under every film. His catch: "a weird
+   black line all around it except the top". Nothing behind it now, and no empty strip. */
+.case .film{background:transparent;}
+.case .film figcaption:empty{display:none;}
+.case .loop{background:var(--paper);}
+.case .loop video{display:block;width:100%;height:auto;}
+/* The reel at the top of the archive. Full width, ink behind it so a letterboxed
+   frame reads as deliberate rather than as a gap, and a hairline under it so it
+   sits in the same ruled system as everything below. */
+.reel{background:var(--ink);border-bottom:var(--hair);line-height:0;}
+.reel video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:var(--ink);}
+
+.film{background:transparent;}
+.film video{width:100%;aspect-ratio:16/9;height:auto;}
+.film figcaption{background:var(--bone);}
+.film--tall{max-width:min(520px,100%);margin-inline:auto;}
+.film--tall video{aspect-ratio:var(--ar,9/16);width:100%;height:auto;}
+.case-next{
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  border-top:var(--hair);margin-top:3rem;padding:1.6rem var(--pad) 2.4rem;
+}
+.case-next a{text-decoration:none;font-family:var(--mono);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;}
+.case-next a:hover{color:var(--red-deep);}
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+.about-hero{padding:clamp(2.4rem,7vh,5rem) var(--pad);border-bottom:var(--hair);}
+.about-hero h1{
+  font-weight:900;font-stretch:106%;
+  font-size:clamp(1.9rem,5.2vw,4.4rem);
+  line-height:1.02;letter-spacing:-.02em;text-transform:uppercase;max-width:18em;
+}
+.about-hero p{
+  font-family:var(--serif);font-optical-sizing:auto;
+  margin-top:1.6rem;font-size:clamp(1.1rem,1.7vw,1.35rem);line-height:1.5;max-width:34em;
+}
+.about-hero p a{text-decoration-thickness:2px;text-underline-offset:.25em;}
+.about-hero p a:hover{color:var(--red-deep);}
+/* Sides only. The top and bottom stay crisp: they read as the section's own
+   boundary, and fading a dark photograph out to a bone page lightens it at
+   the edges — a wash rather than a vignette. */
+.pano{position:relative;}
+.pano::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to right,
+    var(--ink) 0, rgba(22,21,17,0) 16%, rgba(22,21,17,0) 80%, var(--ink) 100%);
+}
+/* The height is capped at the photograph's own proportions (2200x867, so
+   1/2.54 of the width) as well as at 52svh. Without that, a tall window makes
+   the band taller than the picture is shaped for and `cover` starts cutting
+   the sides instead of the top and bottom — 2% of the width gone at 1200px
+   tall, 23% at 1500. Now only ever cropped top and bottom, biased up the
+   frame so it takes the shoulders rather than the head. */
+.pano img{
+  width:100%;max-height:min(52svh,39vw);
+  object-fit:cover;object-position:50% 10%;
+}
+
+.about-sec{padding:clamp(2.2rem,6vh,4rem) var(--pad);border-bottom:var(--hair);position:relative;}
+.about-sec .stamp{position:absolute;right:clamp(1rem,6vw,5rem);top:clamp(1.6rem,5vh,3.2rem);}
+.aw-eyebrow{display:block;margin-bottom:1.2rem;}
+/* his best aside gets the muttered voice — serif against a page of
+   mono paperwork, so the joke lands drier than a headline could */
+.aw-head{
+  font-family:var(--serif);font-optical-sizing:auto;
+  font-weight:500;font-stretch:100%;
+  /* ⛳ 5 Oct 9:35pm: "This copy is too big don't you think?" — it was 36px at
+     1728, BIGGER than CANNES LIONS SILVER x2 under it (33.6px), so the aside
+     outranked the award it introduces. Now the homepage sentence's size
+     (.hero__sub) — same deadpan voice, same size — and a wider measure so it
+     is two lines, not a narrow block. Was clamp(1.45rem,2.5vw,2.25rem), 26em.
+     Floor 1rem, not the homepage's .88: on a phone .88 sat under the award
+     rows' own size. */
+  font-size:clamp(1rem,1.6vw,1.4rem);
+  line-height:1.34;letter-spacing:0;
+  /* 9:45pm "the first line is way too wide" (93 characters at 44em, the
+     second line half that). Then "its better over two lines": 36em with
+     balance — two even lines, 71 and 75 characters, at every desk width. */
+  max-width:36em;text-wrap:balance;margin-bottom:clamp(2rem,5vh,3.4rem);
+}
+/* The headline award runs across the top; the rest is one list beneath. It
+   used to be a narrow column beside them, which left the type cramped and
+   the page lopsided.
+   ⛳ THE TABLE HAS TWO EDGES, 11 Sep 2026. The third column was already 1fr
+   — full width — but its content was left-aligned, so the ink stopped about
+   half way and every bit of slack piled up on the right. Worse, it stopped
+   NARROWER than .aw-head above it, so the block read as floating in the left
+   third of the page.
+   ⛔ THE MEASURE IS .aw-head'S OWN EXPRESSION, NOT A NUMBER COPIED OFF IT.
+   26 x its clamped font-size, so the table and the sentence above it end on
+   exactly the same line at every width — the headline's size is a clamp, so
+   any fixed value only matches at one viewport.
+   ⚠ And it is NOT in em. .gongs2 inherits a 17px font-size, so 58em came out
+   at 986px against the headline's 936 and sat 50px proud of it. em on a
+   container resolves against whatever it inherited; use this calc or rem.
+   The campaign column is right-aligned to that edge: award name anchored
+   left, work anchored right, which is what makes it read as a ledger rather
+   than a list that ran out of things to say. */
+/* ⛳ NO CAP — THE TABLE SPANS THE PAGE. It was briefly held to .aw-head's
+   26em measure, which kept it tidy but left the whole section hugging the
+   left third of a wide screen. A prose measure is for prose; a table has no
+   reason to obey one.
+   ⛔ THIS ONLY WORKS BECAUSE OF THE LEADERS. Full width with a bare gap was
+   unreadable — that is why the cap went on in the first place. Take the
+   leaders out and this has to come back. */
+.gongs2{display:block;}
+.gongs2 > div{margin-bottom:clamp(.5rem,1.2vh,.9rem);}
+/* The headline award is a row of the same table as the rest — same three
+   columns, same axis, same marks. Only the type size says it is the big one.
+   ⛳ There is exactly ONE of these now. There were two, and the second (Kam
+   Fan Grand Prix) equated a regional Grand Prix with a Cannes Lion; it has
+   gone to the head of the tail. The rule below still holds if a second ever
+   returns, but think hard before adding one — one big thing over a flat list
+   is the whole point. */
+.gong-hero{
+  display:grid;grid-template-columns:2.2rem max-content minmax(0,1fr);
+  gap:1.4rem;align-items:baseline;padding:.45rem 0 .8rem;
+}
+.gong-hero .big{
+  display:block;font-weight:900;font-stretch:110%;text-transform:uppercase;
+  font-size:clamp(1.45rem,2.4vw,2.1rem);line-height:.98;letter-spacing:-.015em;
+}
+/* Two elements rather than one with a <br>, so the two categories are two
+   lines that can be spaced against the headline beside them. */
+.gong-hero .for > span{display:block;}
+.gong-hero .for{
+  display:block;align-self:baseline;text-align:left;
+  /* ⛳ ONE LINE OF THIS CAPTION IS ONE LINE OF THE HEADLINE BESIDE IT, so the
+     two campaign lines land on the same two baselines as CANNES LIONS /
+     SILVER ×2. On .m's inherited 1.6 they huddled at ~18px against a table
+     pitching ~40px below them, and read as cramped next to everything else.
+     Tied to the same clamp as .big so they stay locked at any width — a flat
+     line-height here would drift out of register as the headline scales. */
+  line-height:calc(clamp(1.45rem,2.4vw,2.1rem) * .98);
+}
+/* No rule per row — sixteen of them read as a table. The columns line up
+   instead, which is what makes a list scannable. */
+/* No rule above this list. A 3px band across the page cut the two headline
+   awards off from the rest and the section read as two pages. */
+.tail{list-style:none;padding-top:.2rem;}
+.trow{
+  display:grid;grid-template-columns:2.2rem max-content minmax(0,1fr);
+  align-items:baseline;gap:1.4rem;padding:.5rem 0;
+}
+/* ---- the campaign blocks ----
+   Five campaigns PLACED in three columns, not flowed into them: the column
+   breaks are chosen so the depths run 9 / 8 / 6 lines and the rugby lands
+   last in the shortest column.
+   ⛔ INK HIERARCHY IS NAME > MARK > HEADING, AND IT IS LOAD-BEARING. Three
+   columns of small mono headings with a logo beside every line is one step
+   from a sponsor wall. It only reads as a list of work because the award
+   names are the biggest thing in it. The day someone enlarges .gcamp to make
+   the campaigns "clearer", this becomes a website footer. */
+.gcols{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:4rem;margin-top:clamp(2.2rem,4.5vh,3rem);
+}
+/* ⛳ At least 2.5x the row pitch, or the two blocks stacked in a column read
+   as one list with a stray label in the middle of it. */
+.gblock + .gblock{margin-top:7.2rem;}
+/* the heading hangs OUTSIDE the mark gutter; the rows are indented into it,
+   so head and row are told apart by position rather than by a rule */
+.gcamp{display:block;margin:0 0 .5rem;}
+.trow--g{grid-template-columns:2.2rem minmax(0,1fr);}
+/* ⛳ 5 Oct 9:40pm: ONE LINE FOR THE SECOND ROW. His note: "this layout still
+   feels weird ... is it because Great Northern and Brisbane Barbarians are
+   too low?" Each sat a fixed 7.2rem under the block above it, and McDonald's
+   is one row longer than Kmart — so the two second blocks started 46px apart,
+   on two lines that matched nothing. At three columns the blocks are now
+   PLACED on a two-row grid (Intel spans both), so both second headings share
+   one line, set by the longer of McDonald's and Kmart.
+   ⛳ 6 Oct: row-gap 2.45rem. "aren't the great northern and brisbane
+   barbarians rows still too low?" — at 3.9rem (on Intel's rhythm) yes. A
+   whole row higher (1rem) jammed Great Northern's heading under Kam Fan
+   Bronze and column one read as one list. Half a row higher keeps a clear
+   row of air above each heading; the two lower blocks still share one line.
+   They sit half a row off Intel's rhythm — the gap mattered more. Under
+   1241px the old flow (and its 7.2rem) still applies. */
+@media (min-width:1241px){
+  .gcols{grid-template-rows:auto auto;row-gap:2.45rem;}
+  .gcol{display:contents;}
+  .gcol:nth-child(1) > .gblock:nth-child(1){grid-column:1;grid-row:1;}
+  .gcol:nth-child(1) > .gblock:nth-child(2){grid-column:1;grid-row:2;}
+  .gcol:nth-child(2) > .gblock{grid-column:2;grid-row:1 / span 2;}
+  .gcol:nth-child(3) > .gblock:nth-child(1){grid-column:3;grid-row:1;}
+  .gcol:nth-child(3) > .gblock:nth-child(2){grid-column:3;grid-row:2;}
+  .gblock + .gblock{margin-top:0;}
+}
+@media (max-width:1240px){
+  .gcols{grid-template-columns:repeat(2,minmax(0,1fr));gap:3rem;}
+}
+@media (max-width:768px){
+  .gcols{grid-template-columns:1fr;gap:0;}
+  .gblock + .gblock{margin-top:3.2rem;}
+}
+/* The leader lines that used to bridge this row are gone with the third
+   column — grouping removed the gap instead of decorating it. */
+.trow .tmark{align-self:center;}
+.trow .what{font-weight:500;font-size:1.22rem;}
+.trow .work{font-family:var(--mono);font-size:.78rem;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--ink-soft);text-align:right;max-width:none;}
+
+
+/* The two rosters share one band, side by side, on the page's left axis. They
+   were two full-width centred blocks of display type, each taller than the
+   awards list above them — a CV line set louder than the awards. Their
+   headings drop to the same small label the awards section opens with. */
+/* The two rosters share one grid rather than sitting in two independent
+   columns: the heads take row one and the lists row two, so the names start
+   on the same line even though the right-hand head carries an aside under it
+   and the left-hand one does not. */
+.rosters{
+  display:grid;grid-template-columns:1fr 1fr;
+  column-gap:clamp(2rem,5vw,5rem);row-gap:0;
+  padding:clamp(2.6rem,7vh,4.6rem) var(--pad);border-bottom:var(--hair);
+}
+.roster{display:contents;}
+.rosters>.roster:nth-of-type(1)>h2{grid-area:1/1;}
+.rosters>.roster:nth-of-type(1)>ul{grid-area:2/1;}
+.rosters>.roster:nth-of-type(2)>h2{grid-area:1/2;}
+.rosters>.roster:nth-of-type(2)>ul{grid-area:2/2;}
+.roster h2{
+  font-family:var(--mono);font-weight:400;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.18em;color:var(--ink-soft);
+  line-height:1.5;margin-bottom:1.2rem;
+}
+.roster .aside{display:block;font-family:var(--mono);font-size:.62rem;font-weight:400;
+  text-transform:none;letter-spacing:.1em;color:var(--ink-soft);margin:.2rem 0 0;}
+.roster ul{list-style:none;margin:0;}
+/* Both rosters are set solid — outlined, at this size, they read as a row of
+   buttons rather than a list of names. */
+.roster li{
+  font-weight:800;font-stretch:106%;text-transform:uppercase;
+  /* 10% off the old size: the longest name, CUMMINS&PARTNERS MELBOURNE, ran
+     1.10x the column at every width, so it wrapped and knocked the rest of
+     the left column a line out of step with the right. */
+  font-size:clamp(1.17rem,2.25vw,2.07rem);line-height:1.14;letter-spacing:-.015em;
+  color:var(--ink);-webkit-text-stroke:0;
+}
+/* the same small label the other sections open with — a display-size CONTACT
+   was the last thing on the page set at a different scale from everything
+   above it */
+.contact{padding:clamp(2.6rem,7vh,4.6rem) var(--pad);}
+.contact h2{
+  font-family:var(--mono);font-weight:400;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.18em;color:var(--ink-soft);
+  line-height:1.5;margin-bottom:1.2rem;
+}
+.contact p{
+  font-family:var(--serif);font-optical-sizing:auto;
+  font-size:clamp(1.02rem,1.45vw,1.24rem);line-height:1.45;max-width:none;
+}
+.contact a{text-decoration-thickness:2.5px;text-underline-offset:.25em;}
+.contact a:hover{color:var(--red-deep);}
+
+/* ============================================================
+   HIDDEN PANEL — the full-screen overlay that holds Cane Toad Golf.
+   Nothing is for sale. Nothing is even for rent.
+   ============================================================ */
+.panel{
+  position:fixed;inset:0;z-index:90;
+  background:var(--bone-deep);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.panel[hidden]{display:none;}
+.panel__bar{
+  display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  padding:1.1rem var(--pad);border-bottom:var(--hair);flex-wrap:wrap;
+}
+.panel__title b{color:var(--red-deep);}
+.panel__btn{
+  font-family:var(--mono);font-size:.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.2em;
+  background:none;border:1.5px solid var(--ink);color:var(--ink);
+  padding:.45em 1em .4em;cursor:pointer;border-radius:2px;
+}
+@media (hover:hover) and (pointer:fine){.panel__btn:hover{background:var(--ink);color:var(--bone-deep);}}
+.panel__btn--red{border-color:var(--red-deep);color:var(--red-deep);}
+@media (hover:hover) and (pointer:fine){.panel__btn--red:hover{background:var(--red-deep);color:var(--bone-deep);}}
+
+.mixer{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(.8rem,2vw,2rem);
+  padding:clamp(1rem,3vh,2rem) var(--pad) .6rem;
+  position:relative;z-index:5;
+}
+.chan{display:flex;flex-direction:column;gap:.45rem;}
+.chan label{display:flex;justify-content:space-between;gap:.6rem;align-items:baseline;flex-wrap:wrap;}
+.chan label .who{font-family:var(--mono);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.18em;}
+.chan input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:2.1rem;
+  background:transparent;cursor:pointer;margin:0;
+}
+.chan input[type=range]::-webkit-slider-runnable-track{
+  height:4px;background:var(--ink);border-radius:0;
+}
+.chan input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:1.5rem;height:2.1rem;margin-top:calc(-1.05rem + 2px);
+  background:var(--bone);border:1.5px solid var(--ink);border-radius:2px;
+  box-shadow:inset 0 0 0 2px var(--bone),inset 4px 0 0 2px var(--red);
+}
+.chan input[type=range]::-moz-range-track{height:4px;background:var(--ink);}
+.chan input[type=range]::-moz-range-thumb{
+  width:1.5rem;height:2.1rem;background:var(--bone);
+  border:1.5px solid var(--ink);border-radius:2px;
+}
+/* the game sits between the bar and the note; it letterboxes itself */
+.panel__game{position:absolute;left:0;right:0;top:3.2rem;bottom:0;z-index:3;}   /* the game fills the panel under the bar */
+.panel__game iframe{width:100%;height:100%;border:0;display:block;background:#14120f;}
+.panel__note{padding:0 var(--pad);position:relative;z-index:5;}
+/* the note belongs under the game, not behind it */
+.panel__game+.panel__note{position:absolute;left:0;right:0;bottom:.85rem;margin:0;}
+.panel__note .stamp{margin-right:.9em;transform:rotate(-2deg);font-size:.62rem;}
+
+.panel__floor{position:absolute;inset:0;z-index:2;}
+.organ{
+  position:absolute;left:0;top:0;
+  width:clamp(6rem,13vw,9.5rem);
+  background:var(--paper);border:4px solid var(--paper);
+  box-shadow:0 3px 5px rgba(20,21,17,.2),0 12px 26px rgba(20,21,17,.24);
+  cursor:grab;touch-action:none;user-select:none;
+  will-change:transform;padding:0;text-align:center;
+}
+.organ:active{cursor:grabbing;}
+.organ img{width:100%;aspect-ratio:1/1;object-fit:cover;pointer-events:none;}
+.organ figcaption{
+  font-family:var(--mono);font-size:.5rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;line-height:1.35;
+  padding:.4em .2em .2em;color:var(--ink);pointer-events:none;
+}
+.panel__foot{
+  margin-top:auto;position:relative;z-index:4;
+  display:flex;justify-content:flex-end;align-items:flex-end;gap:1rem;
+  padding:0 var(--pad) 1rem;pointer-events:none;
+}
+.panel__foot .panel__btn{pointer-events:auto;}
+.panel .wordmark{position:absolute;left:50%;bottom:0;transform:translateX(-50%);z-index:1;opacity:.1;white-space:nowrap;font-size:16.3vw;line-height:.78;}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width:1100px){
+  .ledger{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:860px){
+  .rosters{grid-template-columns:1fr;gap:2.4rem;}
+  .roster{display:block;text-align:left;}
+  .music{grid-template-columns:1fr;}
+  /* .gongs2 is display:block — the two columns live on its child, so a rule
+     aimed at .gongs2 itself did nothing and the pair stayed side by side all
+     the way down to 390px, four words to a line. */
+  .gongs2 > div{grid-template-columns:1fr;gap:2rem;}
+}
+@media (max-width:700px){
+  .ledger{grid-template-columns:1fr;}
+  /* ⛳ 21 Sep: these three used to set a 3rem number column and a 1.7px
+     stroke, and because this block sits BELOW the 768px one it won on every
+     phone — so hiding .item__no left an empty 3rem indent, and the stroke was
+     still 5.9% of a 28.8px letter against 3.4% on desktop. That is what read
+     as black bars. The column goes, and the stroke is in em like the 768px
+     rule so the two cannot disagree again. */
+  .item{grid-template-columns:minmax(0,1fr);}
+  /* (the stroke is gone — titles are solid; left as a marker of where
+     the per-width stroke tuning used to live) */
+  .item__meta{grid-column:1;justify-self:start;text-align:left;max-width:none;}
+  .case .duo{grid-template-columns:1fr;}
+  .duet{grid-template-columns:1fr;}
+  .filezero__plate{grid-template-columns:1fr;gap:.4rem;}
+  /* stacked, the nav inherited align-items:center from the row layout, so the
+     mark sat centred above a left-aligned list of links and read as an
+     accident. Everything hangs off the same left edge as the page. */
+  /* ⛳ 21 Sep: THE BAR LOSES ITS RULE AND THE TOAD COMES UP BESIDE THE MARK.
+     Stacked, the mark had a row to itself and the toad sat at the end of the
+     link row — which on the homepage is only ABOUT, because the four
+     .nav__dup are hidden further down this block. So the header read as a
+     name, then the word ABOUT with a 1.5px rule under it, and the rule looked
+     like the word was underlined. The rule goes; the toad is lifted out of
+     flow to sit against the mark, which leaves ABOUT alone on its line.
+     --markw is what the canvas is sized with below, so the toad's offset and
+     the mark's width cannot drift apart. */
+  .nav{flex-direction:column;align-items:flex-start;gap:.5rem;padding:.9rem var(--pad);
+       --markw:98px;border-bottom:none;}
+  /* ⛔ position:relative, not static. The 768px block sets .nav--home to
+     static to drop the fixed bar on a phone; that also removes the containing
+     block the toad above is positioned against, so on the homepage — and only
+     there — it would have anchored to the page instead of the bar. relative
+     is still in flow, so the fixed bar stays gone. */
+  .nav--home{border-bottom:none;position:relative;}
+  .nav__hidden{
+    position:absolute;
+    left:calc(var(--pad) + var(--markw) + .85rem);
+    top:.9rem;                                   /* the bar's own padding-top */
+    /* mirrors .nav__mark's box: its .15rem padding top and bottom, plus the
+       canvas at its rendered height (the attributes are 298x160). */
+    height:calc(.3rem + var(--markw) * 160 / 298);
+    display:flex;align-items:center;
+  }
+  /* ⛳ Five links and an icon cannot fit one phone line at a legible size, so
+     the bar wraps — but at a 1rem row gap the two lines read as two separate
+     menus stacked on top of each other rather than one list that ran out of
+     room. Tightened, they sit as one block. */
+  .nav ul{gap:.42rem .85rem;}
+  .nav a{letter-spacing:.14em;}
+  /* ⛳ THE MARK IS A THIRD OF A PHONE SCREEN AT ITS DESKTOP SIZE. The canvas
+     is 298x160 attributes, which at 393px wide came out 164px across — 42% of
+     the screen, and the header ate 195px before anything else began. */
+  .nav__mark canvas.mark{width:var(--markw);height:auto;}
+  /* ⛳ AND THE HOMEPAGE NAV STOPS REPEATING ITS OWN MENU. The four .nav__dup
+     links are there for the desktop, where they FADE OUT as the hero leaves
+     so the page never shows the same menu twice. That fade is scroll-driven
+     and does not run here, so on a phone all four just sat in the bar and
+     wrapped into two ragged rows above an identical list of rows. Hiding them
+     leaves About and the toad on one clean line; the menu below is the menu.
+     ⛔ Homepage only — every other page's nav IS its only navigation. */
+  .nav--home .nav__dup{display:none;}
+  /* stamps stop floating over headlines on small screens */
+  .arch-head .stamp,.about-sec .stamp{
+    position:static;display:inline-block;margin:0 0 1rem;transform:rotate(-2deg);
+  }
+  .mixer{grid-template-columns:1fr;gap:.5rem;}
+  .chan{flex-direction:row;align-items:center;gap:.8rem;}
+  .chan label{flex:0 0 9.5rem;}
+  .chan label .what{display:none;}
+}
+@media (max-width:640px){
+  .case .duo,.case .set{--rh:8.5rem;}
+}
+/* ⛳ THE STAMP IS CENTRED ON THE ROW, which is right on a wide screen where
+   the title ends long before the middle. On a phone the title fills the row
+   and the stamp landed across the middle of the word MUSIC. Bottom right puts
+   it opposite the meta line with the title clear above it. */
+@media (max-width:700px){
+  /* ⛔ right is 3.5rem, not var(--pad). .corner-card is position:fixed at the
+     bottom-right of the viewport (15x21 at x360, z40), so a stamp flush to
+     the page gutter passes straight under the spade on the way up the page —
+     not at rest, but at about 117px of scroll, which is reachable. */
+  .item__soon{left:auto;right:3.5rem;top:auto;bottom:.85rem;transform:none;
+              font-size:.66rem;letter-spacing:.2em;padding:.42rem .7rem;}
+}
+
+/* ============================================================
+   Motion discipline
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none !important;animation:none !important;}
+}
+
+/* Award-show marks, cut from the logo grid that was already on this page.
+   Tier one gets the mark at size; the register carries it as an identifier column. */
+/* ⛳ The marks were scaled twice on 11 Sep 2026 — +20%, then +15% on top,
+   so ~38% up on where they started. Two measured facts keep that safe:
+   · ⛔ A .trow's height comes from the .what LINE BOX — 30.3px, plus
+     padding. The marks are shorter than that, so they contribute nothing to
+     row height and the spacing has not moved through either increase.
+     **30px IS THE CEILING. At 24.8px there is about 5px left.** Go past it
+     and every row in the table gets taller — which is the one thing he
+     asked not to break.
+   · Horizontally the marks now overhang their 2.2rem grid track into the
+     1.4rem gap beside it. The track is a FIXED track, so it does not grow
+     and the type columns do not move; the gap just reads tighter. Verified
+     at each step that .what still starts at the same x.
+   ⚠ .gong-logo is WIDTH-bound, not height-bound, so its max-height has to
+   rise alongside max-width or the width increase is clamped straight back
+   off and the mark does not change size at all. */
+.gong-logo{max-height:41.4px;max-width:3.04rem;width:auto;height:auto;display:block;align-self:center;}
+.trow{align-items:center;}
+.tmark{display:flex;align-items:center;justify-content:flex-start;min-width:2.4rem}
+/* Box-fit, not height-fit. Three of these shows have no symbol — their logo
+   IS a wordmark — so sizing on height alone made the Internationalists 122px
+   wide in a 35px column and pushed the award name off its own line. */
+.trow-logo{max-height:24.84px;max-width:2.76rem;width:auto;height:auto;opacity:.9}
+@media (max-width:768px){
+  .trow,.gong-hero{grid-template-columns:1.9rem minmax(0,1fr);row-gap:.1rem}
+  .trow .work,.gong-hero .for{grid-column:2}
+  .trow-logo{max-height:20.7px;max-width:2.35rem}
+  .gong-logo{max-height:33.1px;max-width:2.35rem}
+}
+
+/* the album tally — same weight as the line it sits in; no highlight, no wink */
+.tally{white-space:nowrap}
+
+/* ================= PRINT =================
+   Nobody prints a portfolio. If they do, it comes out as a filed document:
+   letterhead, reference number, ruled fields, page numbers. Straight face. */
+@media print{
+  @page{ margin:18mm 16mm 20mm; }
+  *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  html,body{ background:#fff !important; color:#000 !important; }
+
+  /* screen furniture doesn't belong on paper */
+  .nav,.trail,.menu,.footer .social,.panel,.panel__scrim,
+  .hero__sub,.specs,.skip,.spot,.spot__load,.case-next,
+  video,iframe,.film,.loop{ display:none !important; }
+
+  /* letterhead */
+  main::before{
+    content:"MAURICE MOYNIHAN — mauricemoynihan.com";
+    display:block; font-family:var(--mono); font-size:8pt; letter-spacing:.14em;
+    text-transform:uppercase; border-bottom:1px solid #000;
+    padding-bottom:4mm; margin-bottom:8mm;
+  }
+
+  /* the record itself */
+  .case-title,.arch-head h1,.about-hero h1{
+    font-size:30pt !important; line-height:.95 !important; margin:0 0 3mm !important;
+  }
+  .case-meta{ border:0; border-top:1px solid #000; border-bottom:1px solid #000;
+              padding:2mm 0; font-size:8pt; display:block; }
+  .case-meta span{ display:inline; margin-right:8mm; }
+  .stamp{ border:1px solid #000 !important; color:#000 !important;
+          background:none !important; transform:none !important; }
+
+  .case p.body,.case .lede,.about-sec p{ font-family:var(--serif); font-size:10.5pt; line-height:1.45; }
+  .case .lede{ font-size:13pt; }
+
+  /* exhibits keep their reference; nothing is orphaned across a page break */
+  .case figure,.g-item,.duo,.set{ break-inside:avoid; page-break-inside:avoid; }
+  .case figure{ border:1px solid #000 !important; margin:6mm 0 !important; }
+  .case figcaption,.fig--tag{
+    position:static !important; transform:none !important;
+    background:none !important; border:0 !important; border-top:1px solid #000 !important;
+    font-family:var(--mono); font-size:7.5pt; padding:1.5mm 0 !important; text-align:left !important;
+  }
+
+  /* a link is useless on paper unless it says where it goes */
+  .case a[href^="http"]::after,.about-sec a[href^="http"]::after{
+    content:" (" attr(href) ")"; font-family:var(--mono); font-size:7.5pt; word-break:break-all;
+  }
+
+  .footer{ border-top:1px solid #000; padding-top:3mm; font-size:8pt; }
+}
+
+/* ---- PRINT: the about page, as a record ---- */
+@media print{
+  /* the claim, stated once, at the top */
+  .about-hero{ padding:0 !important; }
+  .about-hero h1{ font-size:22pt !important; line-height:1.05 !important; max-width:none !important; }
+  .about-hero h1 a{ text-decoration:none; border:0 !important; }
+  .about-hero p{ font-size:10pt; margin-top:3mm; }
+
+  /* portrait earns a place but not a whole page */
+  .pano{ border:1px solid #000; margin:6mm 0 !important; break-inside:avoid; }
+  .pano img{ max-height:78mm; width:100%; object-fit:cover; }
+
+  /* the logo grid is redundant on paper — the marks already sit in the register */
+  
+  .about-sec{ padding:0 !important; }
+  .aw-eyebrow{ font-size:7.5pt; }
+  .aw-head{ font-size:13pt !important; line-height:1.25 !important; max-width:none !important;
+            margin:4mm 0 5mm !important; }
+
+  /* headline hardware */
+  .gongs2{ display:block !important; }
+  .gong-hero{ break-inside:avoid; border-top:1px solid #000; padding:2.5mm 0; }
+  .gong-hero .big{ font-size:15pt !important; line-height:1.05 !important; }
+  .gong-hero .for{ font-size:8pt; }
+  .gong-logo{ height:9mm !important; margin-bottom:2mm !important; }
+
+  /* the register: a ruled table that survives a page break */
+  .tail{ margin-top:5mm; }
+  .trow{ display:grid !important; grid-template-columns:8mm 1fr 52mm !important;
+         gap:3mm !important; align-items:baseline;
+         border-bottom:.4pt solid #000; padding:1.6mm 0 !important;
+         break-inside:avoid; page-break-inside:avoid; }
+  .trow .what{ font-size:9pt; font-weight:700; }
+  .trow .work{ font-size:7pt; text-align:right; line-height:1.25; }
+  .trow-logo{ height:4.2mm !important; width:auto; }
+
+  /* where he has worked */
+  .cv-cols{ display:block !important; break-inside:avoid; }
+  .roster{ margin:3mm 0 5mm !important; }
+  .roster li{ font-size:10pt !important; line-height:1.35 !important;
+              -webkit-text-stroke:0 !important; color:#000 !important; }
+  .aside{ font-size:8pt; }
+
+  .contact{ break-inside:avoid; border-top:1px solid #000; padding-top:3mm; }
+  .contact h2{ font-size:12pt !important; }
+  .contact a{ font-size:10pt; }
+}
+
+/* stamps are absolutely positioned on screen — on paper they must join the flow */
+@media print{
+  .stamp{ position:static !important; float:right; margin:0 0 2mm 4mm !important;
+          display:inline-block; }
+  .about-sec .stamp,.arch-head .stamp{ position:static !important; }
+  .aw-head{ clear:none; }
+}
+
+/* The printable area is narrower than the 768px mobile breakpoint, so the phone
+   rules leak into print. Put the register back into three columns explicitly. */
+@media print{
+  .trow{ grid-template-columns:8mm 1fr 52mm !important; row-gap:0 !important; }
+  .trow .tmark{ grid-column:1 !important; }
+  .trow .what { grid-column:2 !important; }
+  .trow .work { grid-column:3 !important; text-align:right !important; }
+  .case-meta{ display:block !important; }
+}
+
+/* The physics floor sits above the bar and was swallowing clicks on Close.
+   The bar must win the stacking contest. */
+.panel__bar{position:relative;z-index:5}
+.panel__btn{position:relative;z-index:6}
+
+/* One line on anything wide enough to hold it. Below that it breaks back to two,
+   and the short line is scaled — not tracked — so both fill the same measure:
+   MAURICE sets 19.7% narrower than MOYNIHAN at the same width axis. */
+@media (max-width:768px){
+  .hero .wordmark{white-space:normal;}
+  .hero .wordmark span{display:block;}
+  .hero .wordmark span:first-child{font-size:1.187em;}
+}
+
+/* corner card — a way out, for whoever finds it */
+
+/* AWARD MARK SIZES — generated by make_award_marks.py, do not hand-edit */
+/* Each mark is scaled to draw roughly the same amount of ink, not to
+   fill the same box — see optical_sizes() for why. */
+.gong img[src$="adfest-mark.png"]{height:1.438rem;width:auto;}
+.gong img[src$="cairns-crocodiles-mark.png"]{height:1.000rem;width:auto;}
+.gong img[src$="campaign-brief-mark.png"]{height:1.000rem;width:auto;}
+.gong img[src$="cannes-lions-mark.png"]{height:1.325rem;width:auto;}
+.gong img[src$="dentsu-innovation-mark.png"]{height:0.525rem;width:auto;}
+.gong img[src$="digital-media-mark.png"]{height:1.131rem;width:auto;}
+.gong img[src$="effie-mark.png"]{height:1.181rem;width:auto;}
+.gong img[src$="ihac-mark.png"]{height:1.356rem;width:auto;}
+.gong img[src$="internationalists-mark.png"]{height:0.369rem;width:auto;}
+.gong img[src$="kam-fan-mark.png"]{height:1.387rem;width:auto;}
+.gong img[src$="omma-mark.png"]{height:1.062rem;width:auto;}
+.gong img[src$="one-show-mark.png"]{height:1.300rem;width:auto;}
+.gong img[src$="premiership-mark.png"]{height:1.262rem;width:auto;}
+.gong img[src$="shorty-mark.png"]{height:1.238rem;width:auto;}
+.gong img[src$="webby-mark.png"]{height:1.438rem;width:auto;}
+/* END AWARD MARK SIZES */
+
+/* ============================================================
+   MOBILE REFINEMENT — 21 Sep 2026
+   ⛔ THIS BLOCK IS LAST ON PURPOSE. The responsive rules in this
+   file are not grouped by breakpoint: .item__title is also styled
+   in the 768px and 700px blocks, and the later one wins at equal
+   specificity. Sitting at the end of the file, this one wins over
+   both, at every phone width, without editing either.
+   ============================================================ */
+
+/* ⛳ TAP TARGETS. .nav a was a 14px-tall box (.72rem mono, no padding)
+   against Apple's 44px minimum, and .corner-card was 15x21.
+   ⛔ THE NAV LINKS DO MOVE. Symmetrical padding grows the li, so the bar
+   gets ~15px taller per row and everything under it shifts down with it —
+   measured, not assumed. The row-gap is dropped to 0 to pay some of that
+   back and, more importantly, so stacked rows butt up at a 44px pitch
+   instead of overlapping each other's targets, which is worse than a
+   small accurate one. .corner-card is the one that really does not move:
+   it is position:fixed, so the padding is subtracted straight back out of
+   right/bottom and the spade stays exactly where it was drawn. */
+@media (hover:none) and (max-width:700px){
+  .nav ul{gap:0 .85rem;}
+  .nav a{display:inline-block;padding-block:.94rem;}
+  /* ⛳ 28 Sep: MUSIC IS A <span>, NOT AN <a>. The rule above only reaches
+     links, so on every INNER page — where the bar carries all five items and
+     wraps to two rows — Music kept its old 14px box while its neighbours grew
+     to 44px, and the second row read as misaligned: MUSIC riding high above
+     ABOUT. It does not need a tap target, it is not a link. It needs the same
+     box as the things beside it.
+     ⛔ The homepage hides these four (.nav--home .nav__dup), which is exactly
+     why the 21 Sep pass never saw this — that audit only ever looked at the
+     homepage. */
+  .nav__soon span{display:inline-block;padding-block:.94rem;}
+  /* ⛔ the toad is NOT a nav link in the normal sense. `.nav a` above has the
+     same specificity as `.nav__hidden a` and sits later in the file, so it was
+     silently overriding that rule's display:inline-flex — the flex centring
+     the icon relies on. It is absolutely positioned out of the row anyway, so
+     it needs no tap padding. */
+  .nav__hidden a{display:inline-flex;padding-block:0;}
+}
+
+/* ⛳ 21 Sep: NO SUB-LINES ON THE ROWS ON A PHONE. "Since 2011. Some of it
+   won things." is an aside — it works at desk width, where it sits in the
+   quiet to the right of a title that has not used the whole line. On a
+   phone the title fills the line by construction (the fit script scales
+   every one of them to the margin), so the aside drops underneath it as a
+   second, wrapping, all-caps mono paragraph and the row stops being a
+   button and becomes an entry. Five of those is a document, not a menu.
+   The titles are the navigation; the asides are on the pages they point to.
+   ⛔ .item__soon is NOT this — COMING SOON is the Music row's state, not a
+   subheading, and it stays. */
+@media (max-width:700px){
+  .item__meta{display:none;}
+}
+
+/* ⛳ 21 Sep: THE COMING SOON STAMP SHARES THE ROW, IT DOES NOT SIT ON TOP OF
+   IT. With the meta line gone the Music row is a single line tall, so the
+   absolutely-positioned stamp came up level with the word and its left
+   border cut straight through the C of MUSIC — measured on an iPhone 17 Pro,
+   the box started at 227pt and the title ran to 232pt.
+   Giving the row two columns fixes it without a magic number: the title's
+   own box shrinks to what is actually left, and the fit script — which
+   scales every title to its box — reads the smaller box and sizes MUSIC
+   down to match. Nothing has to be kept in sync by hand.
+   ⛔ The margin is what the old right:3.5rem was for. .corner-card is
+   position:fixed bottom-right, so a stamp flush to the page gutter passes
+   under the spade on the way up the page. Held off the gutter by the same
+   distance, it still does not. */
+@media (max-width:700px){
+  .item--soon{grid-template-columns:minmax(0,1fr) auto;align-items:center;}
+  .item__soon{position:static;transform:none;justify-self:end;
+              margin-right:calc(3.5rem - var(--pad));}
+}
+
+/* ⛳ 28 Sep: THE 404's HEADING HAD NO PAGE MARGIN. .case-head is used on
+   404.html and NOWHERE ELSE, and it was styled nowhere in this file — an
+   orphan class. So "Page not found" sat hard against the left edge of the
+   screen while the sentence under it kept the page gutter, at EVERY width,
+   not just on a phone. The real case pages do not use it: their <h1> is
+   .case-title and visually hidden. Matching .case exactly is the whole fix —
+   same measure, same centring, same gutter — so the heading lines up with its
+   own body copy. */
+.case-head{max-width:min(1280px,100%);margin:0 auto;padding:0 var(--pad);}
+
+/* ---------- the footer argues back (4 Oct) ----------
+   ⛳ THE BUTTON HAS TO LOOK LIKE THE SENTENCE IT IS IN. The whole gag is that
+   the last three words of a dry footer line turn out to be clickable, so it
+   inherits the footer's type and gives up every default a <button> brings —
+   background, border, padding, its own font. A dotted underline on hover and
+   on focus is the only tell, and it is enough: anyone running a keyboard or a
+   pointer over it finds it, nobody reading past it does. */
+.footpoke{
+  font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;
+  background:none;border:0;padding:0;margin:0;cursor:pointer;
+}
+/* 8 Oct: a faint dotted underline ALWAYS, his call — a sentence that reads like a sign gives nobody a
+   reason to hover, so the old hover-only underline was never found. Solid on hover. */
+.footpoke{
+  text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 45%,transparent);
+  text-decoration-thickness:1px;text-underline-offset:.35em;
+}
+.footpoke:hover,.footpoke:focus-visible{
+  text-decoration-style:solid;text-decoration-color:currentColor;
+}
+/* it has said its piece — still legible, no longer offering anything, so no underline */
+.footpoke:disabled{cursor:default;opacity:1;text-decoration:none;}
+
+/* What is under the page once it admits there is something under the page.
+   ⛳ EVERYTHING PAST THE TEAR IS INK. The void used to be the same bone as the
+   site, which is why it read as "more page" rather than "past the page" — his
+   note. Inverting is the one change that says you have left, and it also puts
+   the drawing the right way round: pale characters on black is a screen, dark
+   characters on bone is a printed sheet, and what is down here is a screen. */
+.egg{background:var(--ink);color:var(--bone);position:relative;}
+
+/* The dissolve. ⛔ SUPERSEDED 8 Oct: now 100% ASCII, see .egg__fade below. History:
+   THE GRADIENT WAS CSS; THE CHARACTERS WERE ONLY GRAIN.
+   Two earlier attempts tried to make glyph density carry the tone and both
+   showed a hard edge — a glyph inks about half its cell, so density cannot
+   reach solid at either end and whatever it meets, it meets as a step. The
+   ground does the tone continuously, the type does the texture, and ink on
+   ink disappears by itself at the bottom with nothing to fade or align.
+   ⛔ 420 COLUMNS, NOT 200. At 200 the characters ran out at about 1560px and
+   a wide screen showed bare gradient down the right-hand side with no grain on
+   it. 420 covers past 3200px; the surplus is simply clipped.
+   ⛳ AND THE DISSOLVE IS BLOTCHY ON PURPOSE. Every row used to carry one
+   density across its whole width, which read as neat horizontal banding —
+   "it's not ad hoc enough". Five low-frequency waves across the width now
+   make some columns give way long before their neighbours, so the edge is
+   ragged and uneven the way a real stain is. Line-height under 1 so the rows
+   pack and the dither reads as tone, not as rows of text. */
+.egg__fade{
+  margin:0;display:block;overflow:hidden;
+  font-family:var(--mono);font-size:clamp(7px,.85vw,13px);line-height:.92;
+  white-space:pre;color:var(--ink);
+  /* ⛳ 8 Oct: NO GRADIENT. He: "you cheated this gradient. it should be 100% ascii". The ground is
+     plain bone and every bit of tone is type: density first, then each glyph's stroke thickens (--k,
+     set per span by tools/egg_fade.py) until the characters fuse into solid ink at the bottom. */
+  background:var(--bone);
+}
+.egg__fade span{-webkit-text-stroke:calc(var(--k) * .62em) currentColor;}
+
+/* ⛳ THE EMPTY RUN IS THE JOKE'S SET-UP, so it has to be long enough to stop
+   feeling like a page and short enough that a thumb gets to the end of it.
+   ⛳ 9 Oct, his call: the dark is no longer the long part. Specks in the black were tried and called a
+   bandaid; the fix was a longer dissolve (tools/egg_fade.py, 176 -> 352 rows) and a shorter void. */
+.egg__void{height:260vh;position:relative;   /* 16 Oct: 120 → 180 → 260vh so the fade has room (see below) */
+  /* ⛳ 13 Oct, his ask ("the background feels a bit flat"): the deep gets deeper. Ink until the last screen,
+     then down to pure black at the very bottom of the page. */
+  /* ⛳ 16 Oct, "this gradient transition could be smoother between the grey and the black": it held flat ink for
+     the first part of the last screen and then bent toward black, and the bend showed. Now one smoothstep fade over
+     the whole void (13 stops, made by script) — ink at the top where the dissolve ends, black at the bottom. */
+  /* 9:46pm, "still a bit too grey at the top when you've scrolled all the way down ... completely black by that point":
+     the fade now finishes in the first 16.5% of the void (the part above the last screen); the last screen is pure black. */
+  /* 9:50pm, "the grey gradient should be way more smooth ... a nice smooth transition as you scroll": squeezing the fade
+     into the 20vh above the last screen made a band. The void is 180vh now: the fade runs over the first 80vh, and the
+     last screen (where the aquarium is) is pure black. */
+  /* 9:52pm, "needs to be longer and smoother ... can't you just extend it up": the dissolve above can't take a gradient
+     (100% ASCII, his rule), so the void grows instead: 260vh, a smootherstep fade over the first 160vh, the last screen
+     (the aquarium) pure black. */
+  background:linear-gradient(to bottom,rgb(22,21,17) 0.0%,rgb(22,21,17) 2.6%,rgb(22,21,17) 5.1%,rgb(22,21,17) 7.7%,rgb(21,20,16) 10.3%,rgb(21,20,16) 12.8%,rgb(20,19,15) 15.4%,rgb(19,18,14) 17.9%,rgb(17,17,13) 20.5%,rgb(16,15,12) 23.1%,rgb(14,14,11) 25.6%,rgb(13,12,10) 28.2%,rgb(11,10,8) 30.8%,rgb(9,9,7) 33.3%,rgb(8,7,6) 35.9%,rgb(6,6,5) 38.5%,rgb(5,4,4) 41.0%,rgb(3,3,3) 43.6%,rgb(2,2,2) 46.2%,rgb(1,1,1) 48.7%,rgb(1,1,1) 51.3%,rgb(0,0,0) 53.8%,rgb(0,0,0) 56.4%,rgb(0,0,0) 59.0%,rgb(0,0,0) 61.5%,#000 100%);}
+/* ⛳ 13 Oct: the anglerfish (fish.js) swims in the last screen of the dark. */
+.egg__deep{position:absolute;left:0;bottom:0;width:100%;height:100vh;display:block;
+  /* ⛔ 13 Oct: a long press on a phone froze the page — iOS treats a canvas like a picture and starts its
+     press-and-hold preview/menu over it. No callout, no selection, no drag. (fish.js also cancels contextmenu.) */
+  -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;-webkit-tap-highlight-color:transparent;}
+.egg__void{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
+.egg__scene{padding:0 var(--pad) clamp(4rem,14vh,9rem);display:flex;justify-content:center;}
+/* ⛔ THE ART MUST NEVER WRAP — a wrapped line puts the rat's head on the floor
+   below its body. The size is set in JS against the measured character advance
+   (see fitArt), so this is only the starting point it measures from. */
+.egg__art{
+  margin:0;font-family:var(--mono);line-height:1.08;white-space:pre;
+  font-size:12px;color:var(--bone);opacity:1;
+}
+
+/* ⛳ 4 Oct, phones. What the footer gag needed and did not have.
+   THE POKE GETS A REAL TAP TARGET. The words are 18px tall, well under the
+   44px a thumb needs, and padding would have moved the line it sits in. An
+   invisible strip centred on the text does it without touching the layout:
+   the footer's own 2.2rem/2.8rem padding is deeper than the 13px the strip
+   adds above and below, so it cannot reach the row above or the log below. */
+@media (max-width:700px){
+  .footpoke{position:relative;}
+  .footpoke::after{
+    content:"";position:absolute;left:0;right:0;top:50%;
+    height:44px;transform:translateY(-50%);
+  }
+}
+
+/* ⛳ 8 Oct: NO TOAD ON A PHONE, his call ("the cane toad icon is also awkward there. maybe we just
+   get rid of it on mobile?"). It sat on its own beside the MM mark. Desktop keeps it in the bar. */
+@media (max-width:768px){ .nav__hidden{display:none;} }
+
+/* ⛳ 8 Oct: THE SENTENCE ON TWO LINES ON A PHONE, his call ("better if it ran over only two lines instead of
+   three. we can make it smaller if needed"). It was 1.08rem in a 32ch measure: three lines. Now the full
+   width and a size that tracks the screen, balanced so the two lines come out even. */
+@media (max-width:768px){
+  .hero__sub{font-size:clamp(.8rem,3.55vw,1.08rem);max-width:none;text-wrap:balance;
+             margin-top:1.9rem;}               /* 8 Oct: 1rem -> 1.9rem, the name moved up to open this gap */
+  .hero{padding-top:clamp(.5rem,1.6vh,1rem);} /* 8 Oct: was clamp(1.6rem,5vh,2.6rem) — his "move the headline up a little" */
+}
+
+/* ⛳ 13 Oct: ON A PHONE THE MENU IS ONE SIZE AND CENTRED, under the centred name (his call). The size is
+   set by the fit script in index.html; this only centres the words. text-align, not justify-self: the
+   fit script measures each title's box, so the box has to stay the full row wide. */
+@media (max-width:700px){
+  .item__title{text-align:center;}
+}
+
+/* ⛳ 13 Oct: THE SUBHEAD'S LINK ON A PHONE. He: "the subheading looks a bit ugly on mobile". The link's
+   2px grey border ran the full width of its own line as a solid bar under small type. On a phone it is a
+   fine underline now, tucked under the letters; the hover/red behaviour is desk-only anyway. */
+@media (max-width:768px){
+  .hero__sub a{border-bottom:0;text-decoration:underline;text-decoration-thickness:1px;
+               text-underline-offset:.2em;text-decoration-color:rgba(22,21,17,.45);}
+}
+
+/* ⛳ 14 Oct: THE POND (koi.js, phones only). The canvas sits behind the page's own text and only
+   shows once it has drawn a frame; then the name's DOM canvas is hidden (the pond draws the ink,
+   so ripples can bend it) and the two bands that paint paper over it go see-through. */
+.pond{position:absolute;left:0;top:0;z-index:-1;pointer-events:none;display:block;visibility:hidden;}
+html.koi-live .pond{visibility:visible;}
+html.koi-live .hero__liquid{opacity:0;}
+html.koi-live .menu,html.koi-live .nav--home{background:transparent;}
+/* ⛳ 14 Oct, his q: should the gradient start more obviously / earlier on a phone? Yes — a phone's first
+   screen only ever reached the dissolve's near-blank opening rows, so nothing said "keep going". Phones
+   slide the first 48 of its 352 rows (82 cut in with a hard edge) (7px x .92 each) up and out of the <pre>, which clips them; the
+   rows are one wrapper span (tools/egg_fade.py). Desktop untouched. */
+.egg__rows{display:block;}
+@media (max-width:768px){ .egg__rows{margin-top:calc(-48 * .92em);} }
+/* ⛳ 14 Oct, his q: "should we move all the buttons down a little bit?" On a phone the menu sat tight
+   under the sentence with ~200px of bare paper under ABOUT. Down 64px: more open water round the name
+   for the koi (where a tap can't land on a link), ABOUT still on the first screen. Phones only.
+   ⛔ The rule above ADVERTISING is the HERO's border-bottom, not the menu's — so the space goes into the
+   hero's padding (was 1.6rem); a margin on .menu left the rule behind. */
+/* 7:34pm, his tweak: "title and subheading down a tiny little bit, the menu buttons up the tiniest bit" —
+   name and sentence +12px, menu -8px (so the gap under the sentence closes by 20). */
+@media (max-width:768px){ .hero{padding-top:calc(clamp(.5rem,1.6vh,1rem) + 27px);padding-bottom:calc(1.6rem + 26px);} }  /* nudged by him 7:36-7:39pm: name + sentence +27px in all, menu settled 52px lower than before */
+/* 7:35pm, his note: "i can't see the top of the gradient anymore" — the menu moving down pushed it off a
+   phone's first screen. The empty homepage footer (80px of padding before the dissolve) gives that
+   space back on phones. Homepage only: it is the footer after the home nav. */
+@media (max-width:768px){ .nav--home ~ .footer{padding-top:6px;padding-bottom:10px;} }
+/* ⛳ 15 Oct, his q: "the top nav buttons should be centred on the advertising etc. pages dont you think?"
+   Yes on a phone — the homepage menu is centred there. The MM goes to the middle with them, or the mark
+   and the links disagree. Inner pages only (.nav--home has no mark). */
+@media (max-width:768px){
+  .nav:not(.nav--home){align-items:center;}
+  .nav:not(.nav--home) ul{justify-content:center;}
+}
+/* ⛳ 15 Oct (phone audit): small text links measured 15–29px tall on a phone — back/next on the case
+   pages, email + LinkedIn on About, inline links in body copy, the Governor link, adnauseum's closing
+   link. An invisible ::after grows each one's tap area without moving anything on the page.
+   Touch screens only. */
+@media (pointer:coarse){
+  .case-next a,.contact a,.case .body a,.aw-head a,.hero__sub a,.adn-go{position:relative;}
+  .case-next a::after,.contact a::after,.case .body a::after,.aw-head a::after,.hero__sub a::after,.adn-go::after{
+    content:'';position:absolute;left:-4px;right:-4px;top:-10px;bottom:-10px;}
+}
+
+/* ⛳ 16 Oct 2026, his call: Cane Toad Golf is offline until he has time to finish it ("it's unfinished ... a broken
+   mess"). The nav icon is hidden on every page and /canethetoad redirects home (site/_redirects); the game itself is
+   untouched in cane-toad-golf/. To bring it back: delete this rule and the CANE TOAD OFFLINE block in site/_redirects. */
+li:has(> a[href="/canethetoad"]),li:has(> a[href$="#cane-toad-golf"]){display:none!important}
+
+/* 18 Oct 2026, his question: "is it typeset nicely? line breaks where needed?" — measured every case page at 1440 and 390:
+   eleven paragraphs and one lede ended on a stranded word or two ("a pool.", "Kowloon Bay."). The browser does the fix at
+   every width, which hand-placed breaks can't: body copy avoids a short last line (pretty), ledes even their lines out
+   (balance). Browsers without text-wrap simply wrap as before. */
+p.body,.case figcaption{text-wrap:pretty;}
+.lede,.case h1{text-wrap:balance;}
