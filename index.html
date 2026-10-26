@@ -8,7 +8,7 @@ canvas{width:100%;height:100%;position:absolute;inset:0;touch-action:none}
 small{position:absolute;bottom:24px;left:0;right:0;text-align:center;pointer-events:none;opacity:.5;font-size:12px}
 </style></head><body><main><canvas id="stage"></canvas><small>MOVE YOUR CURSOR THROUGH THE INK · INDEPENDENT RECREATION</small></main>
 <script type="module">
-const settings={text:"LIQUID",ink:"#161511",radius:105,push:30,stiffness:.035,damping:.88,fontScale:.21,grid:4,smoothness:5,threshold:95};
+const settings={text:"LIQUID",ink:"#161511",radius:50,push:30,stiffness:.035,damping:.88,fontScale:.21,grid:4,smoothness:20,threshold:95};
 const canvas=document.querySelector("canvas"),pencil=canvas.getContext("2d");
 const mask=document.createElement("canvas"),brush=mask.getContext("2d",{willReadFrequently:true});
 const inkLayer=document.createElement("canvas"),inkPencil=inkLayer.getContext("2d",{willReadFrequently:true});
