@@ -201,10 +201,12 @@
       var pts = strokes[s];
       for (var i = 0; i < pts.length; i++) {
         var p = pts[i];
-        // the pen swells and thins along the stroke, each part out of step with its neighbours
-        var swell = 1 + 0.11 * Math.sin(phase + p.seed * 1.4) + 0.05 * Math.sin(phase * 2 + p.seed * 2.3) + p.end * 0.2;
-        var wx = Math.sin(phase + p.seed * 1.9) * unit * 0.012;
-        var wy = Math.cos(phase + p.seed * 1.3) * unit * 0.012;
+        // the pen swells and thins along the stroke, each part out of step with its neighbours;
+        // a faster ripple rides on top so the letters keep moving, and a slow wave runs along the line
+        var swell = 1 + 0.13 * Math.sin(phase + p.seed * 1.4) + 0.07 * Math.sin(phase * 3 + p.seed * 2.3)
+                      + 0.05 * Math.sin(phase * 6 - p.x * 0.02) + p.end * 0.2;
+        var wx = Math.sin(phase * 2 + p.seed * 1.9) * unit * 0.03;
+        var wy = Math.cos(phase * 2 + p.seed * 1.3) * unit * 0.03 + Math.sin(phase * 3 - p.x * 0.008) * unit * 0.025;
         ctx.beginPath();
         ctx.arc(p.x + p.dx + wx, p.y + p.dy + wy, r0 * swell, 0, PI * 2);
         ctx.fill();
