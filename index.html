@@ -35,7 +35,7 @@
   "use strict";
 
   var INK = "#161511";
-  var LOOP = 18;                 // seconds for one full ooze cycle
+  var LOOP = 10;                 // seconds for one full ooze cycle
   var PEN = 0.145;               // pen radius, in letter heights
   var TRACK = 0.22;              // gap between letters, in letter heights
   var SPACE = 0.7;               // gap between words
@@ -43,9 +43,9 @@
 
   // ===== CUSTOMISE YOUR LIQUID TEXT HERE =====
   // Appearance
-  var SWELL_SLOW = 0.13;       // large, slow changes in stroke thickness
-  var SWELL_MEDIUM = 0.07;     // medium ripples in stroke thickness
-  var SWELL_FAST = 0.05;       // small, quick ripples
+  var SWELL_SLOW = 0.4;       // large, slow changes in stroke thickness
+  var SWELL_MEDIUM = 0.15;     // medium ripples in stroke thickness
+  var SWELL_FAST = 0.8;       // small, quick ripples
   var STROKE_IRREGULARITY = 0.25; // fixed uneven thickness along each letter (0 = uniform)
   var END_SWELL = 0.2;         // extra thickness at stroke ends
   var WAVE_X = 0.03;           // automatic sideways movement
@@ -53,13 +53,13 @@
   var WAVE_Y_EXTRA = 0.025;    // secondary vertical wave
 
   // Mouse and spring physics
-  var REACH = 0.5;             // cursor interaction radius
-  var PUSH = 0.6;              // force pushing ink away from cursor
-  var CARRY = 0.2;             // mouse motion dragging ink
-  var SPRING = 0.02;           // return force toward original shape
+  var REACH = 0.4;             // cursor interaction radius
+  var PUSH = 0.3;              // force pushing ink away from cursor
+  var CARRY = 0.4;             // mouse motion dragging ink
+  var SPRING = 0.009;           // return force toward original shape
   var DAMP = 0.9;              // motion retention (higher = longer wobble)
   var COUPLE = 0.9;            // how strongly neighbouring points follow
-  var MAX_OFFSET = 0.4;        // maximum deformation, in letter heights
+  var MAX_OFFSET = 0.3;        // maximum deformation, in letter heights
   var POINT_SPACING = 0.5;     // sample spacing, relative to PEN
   var POINTER_DECAY = 0.8;     // how quickly cursor momentum fades
   // ===== END CUSTOM SETTINGS =====
